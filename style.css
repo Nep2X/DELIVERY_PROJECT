@@ -1,0 +1,4290 @@
+/* =====================================================================
+   DELIVERY PROJECT - style.css
+
+   TABLE OF CONTENTS
+   1.  Design tokens (kulay, shadow)
+   2.  Base
+   3.  App shell      (header, main layout, sidebar)
+   4.  Page content   (page head, dashboard, panels)
+   5.  Components     (buttons, forms, tables, badges, modal, icon buttons, photo viewer)
+   6.  Pages          (reports, settings, live map, rider)
+   7.  Responsive     (1250 > 900 > 850 > 650 > 430)
+   8.  Print / accessibility
+
+   Pagpapalit ng kulay? Sa seksyon 1 lang. Hex ang gamit (hindi oklch)
+   para gumana kahit sa lumang browser.
+===================================================================== */
+
+
+/* =====================================================================
+   1. DESIGN TOKENS
+===================================================================== */
+:root {
+    color-scheme: light;                 /* iwas auto-dark / baligtad na kulay ng browser */
+
+    /* Surfaces */
+    --background: #ECECE8;               /* background ng buong page (dati #EFEFEC) */
+    --card: #FFFFFF;                     /* sidebar, header, cards, modal */
+    --secondary: #F1F0ED;                /* table head, hover, rider card (dati #F4F3F1) */
+
+    /* Text */
+    --foreground: #1D1D19;
+    --primary: #22221E;                  /* dark buttons / dark chips */
+    --primary-foreground: #FFFFFF;
+    --muted-foreground: #66665F;         /* dati #72726D, mas malinaw ang maliliit na text */
+    --text-soft: #4A4A46;                /* labels */
+
+    /* Lines */
+    --border: #D6D6D1;                    /* dati #DEDEDC, kita kahit sa maliwanag na monitor */
+    --border-soft: #E6E6E2;              /* hati ng rows sa listahan */
+
+    /* Brand / status */
+    --accent: #BFF100;                   /* lime */
+    --route-a: #22221E;                  /* ruta: company -> rider */
+    --route-b: #6E9A00;                  /* ruta: rider -> customer */
+    --stop-1: #2E7D32;
+    --stop-2: #1F66CC;
+    --stop-3: #7C3AED;
+    --stop-4: #C2410C;
+    --stop-5: #BE185D;
+    --accent-foreground: #202413;
+    --packed: #E2CBFF;                   /* lilac (Pending / Processing) */
+    --packed-foreground: #45335B;
+    --ring: #5E7A22;                     /* focus ring (4.14 on bg, 4.90 on card) */
+    --destructive: #B42318;   /* 5.61 on #FBE9E7, 6.57 on white */
+    --destructive-soft: #FBE9E7;
+    --green: #2F8F4E;
+    --green-ink: #1F6B3A;                 /* success text (5.7:1 sa --secondary) */
+    --orange: #D98A00;
+    --blue: #1F66CC;
+    --violet: #7C3AED;
+
+    --shadow-panel: 0 8px 36px rgba(0, 0, 0, 0.05);
+
+    /* Lumang pangalan, ginagamit pa ng inline <style> sa ibang HTML */
+    --navy: var(--primary);
+    --navy-dark: var(--foreground);
+    --light-bg: var(--background);
+    --white: var(--card);
+    --text: var(--foreground);
+    --muted: var(--muted-foreground);
+    --red: var(--destructive);
+}
+
+
+/* =====================================================================
+   2. BASE
+===================================================================== */
+* {
+    box-sizing: border-box;
+}
+
+body,
+button,
+input,
+select,
+textarea {
+    font-family: 'DM Sans', Arial, Helvetica, sans-serif;
+    letter-spacing: 0;
+}
+
+body {
+    margin: 0;
+    background: var(--background);
+    color: var(--foreground);
+}
+
+/* Progressive line-breaking: mas magandang break sa headings at prose */
+h1, h2, h3 {
+    text-wrap: balance;
+}
+
+p {
+    text-wrap: pretty;
+}
+
+/* Default na itsura ng lahat ng form field (mas tiyak na rules ang nag-o-override) */
+input,
+select,
+textarea {
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card);
+    color: var(--foreground);
+    caret-color: var(--foreground);
+    accent-color: var(--primary);
+}
+
+::placeholder {
+    color: var(--muted-foreground);
+    opacity: 1;
+}
+
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+}
+
+/* Browser surfaces: selection, scrollbar */
+::selection {
+    background: var(--accent);
+    color: var(--accent-foreground);
+}
+
+html {
+    scrollbar-color: var(--border) transparent;   /* Firefox */
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border);
+    background-clip: content-box;
+    border: 2px solid transparent;
+    border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-foreground);
+    background-clip: content-box;
+}
+
+button:focus-visible,
+a:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+}
+
+
+/* =====================================================================
+   3. APP SHELL
+===================================================================== */
+
+/* ---------- Header ---------- */
+.headerSec {
+    position: relative;
+    z-index: 1000;
+    min-height: 76px;
+    padding: 10px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--card);
+    color: var(--foreground);
+    border-bottom: 1px solid var(--border);
+}
+
+.headerSec h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--foreground);
+}
+
+.headerActions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.headerSec button {
+    padding: 9px 14px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--foreground);
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.headerSec button:hover {
+    background: var(--secondary);
+}
+
+/* ---------- Main layout ---------- */
+.mainLayout {
+    display: grid;
+    grid-template-columns: 68px minmax(0, 1fr);
+    gap: 24px;
+    padding: 24px;
+    min-height: calc(100vh - 76px);
+}
+
+/* ---------- Sidebar (icon rail) ---------- */
+.optionSec {
+    position: sticky;
+    top: 24px;
+    height: calc(100vh - 124px);
+    padding: 20px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+.sidebarTitle {
+    width: 36px;
+    height: 36px;
+    margin-bottom: 28px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    font-size: 0;                        /* nakatago ang "MENU", logo lang ang kita */
+    font-weight: 700;                    /* para sa ◈ na logo */
+    letter-spacing: 1.5px;
+    border: 1px solid var(--foreground);
+    border-radius: 50%;
+}
+
+.sidebarTitle::after {
+    content: '◈';
+    font-size: 25px;
+    color: var(--foreground);
+}
+
+.optionSec button {
+    width: 40px;
+    height: 40px;
+    margin: 2px 0;
+    padding: 10px;
+    display: grid;
+    place-items: center;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--foreground);
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.optionSec button:hover,
+.optionSec button.active {
+    background: var(--secondary);
+}
+
+.optionSec svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.optionSec .settingsIcon {
+    width: 20px;
+    height: 20px;
+    display: block;
+    background: currentColor;
+    -webkit-mask: url("assets/setting-icon.svg") center / contain no-repeat;
+    mask: url("assets/setting-icon.svg") center / contain no-repeat;
+}
+
+.sidebarBottom {
+    width: 100%;
+    margin-top: auto;
+    padding-top: 15px;
+    display: grid;
+    place-items: center;
+    border-top: 1px solid var(--border);
+}
+
+.sidebarBottom button:hover {
+    color: var(--destructive);           /* Logout: pula kapag hover */
+}
+
+
+/* =====================================================================
+   4. PAGE CONTENT
+===================================================================== */
+
+/* ---------- Content card (puting kahon sa kanan ng sidebar) ---------- */
+.dashboardSec {
+    min-width: 0;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+/* ---------- Page titles ---------- */
+.dashboardHead {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px;
+}
+
+.dashboardHead h3,
+.pageHead h3,
+.pageHead h1 {
+    margin: 0 0 6px;
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--foreground);
+}
+
+.dashboardHead p,
+.pageHead p {
+    margin: 0;
+    color: var(--muted-foreground);
+    font-size: 14px;
+}
+
+/* ---------- Panel (Deliveries, Drivers, etc.) ---------- */
+.panel,
+.dashboardDelOverview {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.panel h2,
+.panel h1,
+.sectionHeader h2,
+.recentDeliveryHeader h2 {
+    margin: 0 0 5px;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--foreground);
+}
+
+.panel > p,
+.sectionHeader p,
+.recentDeliveryHeader p {
+    margin: 0 0 16px;
+    color: var(--muted-foreground);
+    font-size: 13px;
+}
+
+.sectionHeader p,
+.recentDeliveryHeader p {
+    margin-bottom: 0;
+}
+
+/* ---------- Dashboard: summary cards ---------- */
+.dashboardCards {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(150px, 1fr));
+    gap: 16px;
+}
+
+.dashboardCard,
+.reportCard,
+.profileCard {
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card);
+    box-shadow: none;
+}
+
+.dashboardCard {
+    min-height: 135px;
+    position: relative;
+    overflow: hidden;
+}
+
+.cardLabel {
+    color: var(--muted-foreground);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.cardValue {
+    margin-top: 10px;
+    color: var(--foreground);
+    font-size: 30px;
+    font-weight: 700;
+}
+
+.cardNote {
+    margin-top: 5px;
+    color: var(--muted-foreground);
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.newDeliveryBtn {
+    padding: 11px 17px;
+    border: none;
+    border-radius: 6px;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.newDeliveryBtn:hover {
+    background: var(--accent);
+    color: var(--accent-foreground);
+}
+
+/* ---------- Dashboard: overview (chart + status list) ---------- */
+.sectionHeader,
+.recentDeliveryHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.sectionHeader select {
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card);
+    color: var(--foreground);
+}
+
+.overviewContent {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(230px, 1fr);
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.chartBox,
+.statusSummary {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+}
+
+.chartTitle,
+.summaryTitle {
+    margin-bottom: 16px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--foreground);
+}
+
+.fakeChart {
+    height: 220px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.chartBars {
+    height: 175px;
+    padding: 0 15px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-around;
+    gap: 15px;
+    border-bottom: 1px solid var(--border);
+}
+
+.chartBars span {
+    width: 30px;
+    max-width: 45px;
+    background: var(--primary);
+    border-radius: 5px 5px 0 0;
+    opacity: 0.9;
+}
+
+.chartDays {
+    padding-top: 9px;
+    display: flex;
+    justify-content: space-around;
+    color: var(--muted-foreground);
+    font-size: 11px;
+}
+
+.statusSummary {
+    display: flex;
+    flex-direction: column;
+}
+
+.statusRow {
+    padding: 13px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-soft);
+    font-size: 13px;
+}
+
+.statusRow:last-child {
+    border-bottom: none;
+}
+
+.statusRow span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.statusRow strong {
+    color: var(--foreground);
+}
+
+.statusDot {
+    width: 8px;
+    height: 8px;
+    display: inline-block;
+    border-radius: 50%;
+    background: var(--primary);
+}
+
+.statusDot.pending    { background: var(--orange); }
+.statusDot.processing { background: var(--blue); }
+.statusDot.out        { background: var(--violet); }
+.statusDot.delivered  { background: var(--green); }
+.statusDot.cancelled  { background: var(--destructive); }
+
+/* ---------- Dashboard: recent deliveries ---------- */
+.recentDeliveryHeader {
+    margin-top: 28px;
+    margin-bottom: 14px;
+}
+
+.viewAllBtn {
+    padding: 8px 13px;
+    border: 1px solid var(--primary);
+    border-radius: 6px;
+    background: var(--card);
+    color: var(--primary);
+    cursor: pointer;
+}
+
+.viewAllBtn:hover {
+    background: var(--primary);
+    color: var(--primary-foreground);
+}
+
+
+/* =====================================================================
+   5. COMPONENTS
+===================================================================== */
+
+/* ---------- Buttons ---------- */
+.btnPrimary,
+.btnOutline,
+.btnDanger {
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.btnPrimary {
+    padding: 11px 20px;
+    border: none;
+    background: var(--primary);
+    color: var(--primary-foreground);
+}
+
+.btnPrimary:hover {
+    background: var(--accent);
+    color: var(--accent-foreground);
+}
+
+.btnOutline {
+    padding: 10px 16px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--foreground);
+}
+
+.btnOutline:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: var(--primary-foreground);
+}
+
+.btnDanger {
+    padding: 10px 16px;
+    border: 1px solid var(--destructive);
+    background: var(--card);
+    color: var(--destructive);
+}
+
+.btnDanger:hover {
+    background: var(--destructive);
+    color: var(--primary-foreground);
+}
+
+/* ---------- Toolbar (add button + search + filters) ---------- */
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.toolbar input[type="text"],
+.toolbar select {
+    min-width: 160px;
+    font-size: 13px;
+}
+
+/* ---------- Tables ---------- */
+.tableWrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.dataTable,
+.recentDeliveryTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.dataTable th,
+.recentDeliveryTable th {
+    padding: 13px 14px;
+    background: var(--secondary);
+    color: var(--muted-foreground);
+    text-align: left;
+    font-weight: 400;
+    border-bottom: 1px solid var(--border);
+}
+
+.dataTable td,
+.recentDeliveryTable td {
+    padding: 18px 14px;
+    color: var(--foreground);
+    border-bottom: 1px solid var(--border);
+}
+
+.dataTable tbody tr:hover,
+.recentDeliveryTable tbody tr:hover {
+    background: var(--secondary);
+}
+
+.dataTable select {
+    padding: 6px 9px;
+    font-size: 12px;
+}
+
+.statusText {
+    font-weight: 700;
+}
+
+/* ---------- Status badges ---------- */
+.statusBadge {
+    display: inline-block;
+    padding: 5px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.pendingBadge,
+.processingBadge {
+    background: var(--packed);
+    color: var(--packed-foreground);
+}
+
+.outBadge {
+    background: var(--accent);
+    color: var(--accent-foreground);
+}
+
+.deliveredBadge {
+    background: var(--secondary);
+    color: var(--foreground);
+    border: 1px solid var(--border);
+}
+
+.cancelledBadge {
+    background: var(--destructive-soft);
+    color: var(--destructive);
+}
+
+/* ---------- Icon buttons (edit / delete sa table) ---------- */
+.actionBtns {
+    display: flex;
+    gap: 6px;
+}
+
+.iconBtn {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--card);
+    color: var(--muted-foreground);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.iconBtn svg {
+    width: 15px;
+    height: 15px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.iconBtn:hover {
+    color: var(--primary);
+    border-color: var(--primary);
+    background: var(--secondary);
+}
+
+.iconBtn.danger:hover {
+    color: var(--destructive);
+    border-color: var(--destructive);
+    background: var(--destructive-soft);
+}
+
+/* ---------- Modal ---------- */
+.modal {
+    display: none;                       /* JS ang nagpapakita (display: flex) */
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    justify-content: center;
+    align-items: center;
+    background: rgba(15, 23, 42, 0.5);
+    z-index: 1000;
+}
+
+.modalBox {
+    width: 520px;
+    max-width: 92vw;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 24px;
+    background: var(--card);
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.modalHeader h2 {
+    margin: 0;
+    font-size: 20px;
+    color: var(--foreground);
+}
+
+.modalClose {
+    border: none;
+    background: none;
+    font-size: 26px;
+    line-height: 1;
+    color: var(--muted-foreground);
+    cursor: pointer;
+}
+
+.modalClose:hover {
+    color: var(--destructive);
+}
+
+.modalBox form {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.modalBox label {
+    margin-top: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-soft);
+}
+
+/* Isang box para sa lahat ng customers sa Add Delivery */
+.customerBatch {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 6px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+.customerBatch label:first-child {
+    margin-top: 0;
+}
+
+.modalBox input,
+.modalBox select,
+.modalBox textarea {
+    font-size: 13px;
+}
+
+.modalBox input:focus,
+.modalBox select:focus,
+.modalBox textarea:focus {
+    outline: 2px solid var(--ring);
+    border-color: var(--primary);
+}
+
+.modalActions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+/* Sticky footer sa mahabang Add Delivery form */
+#deliveryModal .modalBox {
+    padding-bottom: 0;
+}
+
+#deliveryForm .modalActions {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    margin: 16px -24px 0;
+    padding: 12px 24px 16px;
+    background: var(--card);
+    border-top: 1px solid var(--border-soft);
+}
+
+/* ---------- Proof photo + viewer ---------- */
+.proofThumb {
+    width: 64px;
+    height: 64px;
+    display: block;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+}
+
+.proofMissing {
+    color: var(--muted-foreground);
+    font-size: 13px;
+    font-style: italic;
+}
+
+.photoViewer {
+    display: none;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 16px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 9999;
+}
+
+.photoViewer.open {
+    display: flex;
+}
+
+.photoViewerImg {
+    max-width: 100%;
+    max-height: calc(100vh - 90px);
+    object-fit: contain;
+    border-radius: 6px;
+}
+
+.photoViewerClose {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.photoViewerClose:hover {
+    background: rgba(255, 255, 255, 0.22);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.photoViewerClose:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
+
+/* =====================================================================
+   6. PAGES
+===================================================================== */
+
+/* ---------- Reports ---------- */
+.reportCards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(180px, 1fr));
+    gap: 16px;
+}
+
+.reportControls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.reportControls label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-soft);
+}
+
+.reportControls input,
+.reportControls select {
+    font-size: 13px;
+}
+
+.chartPlaceholder {
+    height: 220px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    color: var(--muted-foreground);
+    font-size: 14px;
+}
+
+.reportActions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.repMessage {
+    margin: 0 0 16px;
+    padding: 10px 14px;
+    background: #FDECEA;
+    border: 1px solid #F5C2BD;
+    border-radius: 6px;
+    color: #8A1F17;
+    font-size: 14px;
+}
+
+.repMessage[hidden] {
+    display: none;
+}
+
+/* ---------- Settings ---------- */
+.settingsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.profileCard {
+    padding: 24px;
+}
+
+.profileCard h3,
+.profileCard h2 {
+    margin: 0 0 16px;
+    font-size: 18px;
+    color: var(--foreground);
+}
+
+.profileCard button {
+    margin-top: 16px;
+}
+
+.profileRow {
+    padding: 11px 0;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-soft);
+    font-size: 13px;
+}
+
+.profileRow:last-of-type {
+    border-bottom: none;
+}
+
+.profileRow span {
+    color: var(--muted-foreground);
+}
+
+.profileRow strong {
+    color: var(--foreground);
+}
+
+/* ---------- Live Map ---------- */
+.liveStatus {
+    color: var(--muted-foreground);
+    font-size: 12px;
+}
+
+.liveGrid {
+    display: grid;
+    grid-template-columns: 320px minmax(0, 1fr);
+    gap: 20px;
+}
+
+.liveList,
+.liveMapWrap {
+    height: calc(100vh - 300px);
+    min-height: 460px;
+}
+
+.liveList {
+    display: flex;
+    flex-direction: column;
+}
+
+.liveListHead {
+    margin-bottom: 12px;
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+.liveMapWrap {
+    position: relative;
+}
+
+.liveGrid #map {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: auto;
+    z-index: 0;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+.routeInfo {
+    position: absolute;
+    left: 12px;
+    bottom: 12px;
+    z-index: 500;
+    padding: 10px 14px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow-panel);
+    font-size: 13px;
+}
+
+#list {
+    flex: 1;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.rider {
+    width: 100%;
+    padding: 16px 13px;
+    background: var(--secondary);
+    color: var(--foreground);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    text-align: left;
+    font-size: 13px;
+    line-height: 1.5;
+    cursor: pointer;
+}
+
+.rider:hover,
+.rider[aria-pressed="true"] {
+    background: var(--card);
+    border-color: var(--foreground);
+}
+
+.rider[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.rider small {
+    display: block;
+    margin-top: 4px;
+    color: var(--muted-foreground);
+    font-size: 12px;
+    line-height: 1.35;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    margin-right: 7px;
+    display: inline-block;
+    border-radius: 50%;
+}
+
+.fresh { background: var(--accent); }
+.stale { background: var(--muted-foreground); }
+
+.location-marker {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border: 3px solid var(--card);
+    border-radius: 50%;
+    box-shadow: var(--shadow-panel);
+}
+
+.location-marker.fresh {
+    background: var(--accent);
+    color: var(--accent-foreground);
+}
+
+.location-marker.stale {
+    background: var(--muted-foreground);
+    color: var(--card);
+}
+
+.location-marker .truck {
+    width: 20px;
+    height: 20px;
+    display: block;
+    background: currentColor;
+    -webkit-mask: url("assets/truck-icon.svg") center / contain no-repeat;
+    mask: url("assets/truck-icon.svg") center / contain no-repeat;
+}
+.company-marker {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border: 3px solid var(--card);
+    border-radius: 50%;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    box-shadow: var(--shadow-panel);
+}
+
+.company-marker .building {
+    width: 20px;
+    height: 20px;
+    display: block;
+    background: currentColor;
+    -webkit-mask: url("assets/company-icon.svg") center / contain no-repeat;
+    mask: url("assets/company-icon.svg") center / contain no-repeat;
+}
+/* Pin ng customer stops sa Live Map */
+.destPin {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    display: block;
+}
+
+.destPin::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: var(--pin-color, var(--accent));
+    -webkit-mask: url("assets/customer-pin-icon.svg") center / contain no-repeat;
+    mask: url("assets/customer-pin-icon.svg") center / contain no-repeat;
+    /* Fallback kung hindi supported ang color-mix */
+    filter:
+        drop-shadow(0 0 1px rgba(0,0,0,.55))
+        drop-shadow(0 2px 3px rgba(0,0,0,.35));
+    /* Colored outline: darker sa light themes, lighter sa Midnight */
+    filter:
+        drop-shadow(0 0 1.5px color-mix(in srgb, var(--pin-color, var(--accent)) 55%, var(--foreground)))
+        drop-shadow(0 2px 3px rgba(0,0,0,.35));
+}
+
+.destPin b {
+    position: absolute;
+    top: 4.5px;
+    left: 50%;
+    z-index: 1;
+    width: 18px;
+    height: 18px;
+    transform: translateX(-50%);
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--card);
+    color: var(--pin-color, var(--accent));
+    font: 700 11px/1 sans-serif;
+}
+.leaflet-control-zoom {
+    border: 1px solid var(--border) !important;
+    box-shadow: var(--shadow-panel) !important;
+}
+
+.leaflet-control-zoom a {
+    background: var(--card) !important;
+    color: var(--foreground) !important;
+}
+
+/* ---------- Rider page (rider.html) ---------- */
+.riderWrap .panel {
+    padding: 22px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+
+/* =====================================================================
+   7. RESPONSIVE  (pinakamalaki > pinakamaliit)
+===================================================================== */
+@media (max-width: 1250px) {
+    .dashboardCards {
+        grid-template-columns: repeat(3, minmax(160px, 1fr));
+    }
+}
+
+@media (max-width: 900px) {
+    .liveGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .liveList {
+        height: auto;
+        min-height: 0;
+        max-height: 260px;
+    }
+
+    .liveMapWrap {
+        height: 420px;
+        min-height: 0;
+    }
+}
+
+@media (max-width: 850px) {
+    .mainLayout {
+        grid-template-columns: 56px minmax(0, 1fr);
+        gap: 14px;
+        padding: 14px;
+    }
+
+    .optionSec {
+        width: 56px;
+        padding: 16px 6px;
+    }
+
+    .dashboardSec {
+        padding: 20px;
+    }
+
+    .overviewContent {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 650px) {
+    .headerSec {
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 10px 14px;
+    }
+
+    .headerSec h2 {
+        font-size: 17px;
+    }
+
+    .headerActions {
+        gap: 2px;
+    }
+
+    .headerSec button {
+        padding: 8px;
+        font-size: 12px;
+    }
+
+    .mainLayout {
+        grid-template-columns: 46px minmax(0, 1fr);
+        gap: 10px;
+        padding: 10px 10px 10px 0;
+    }
+
+    .optionSec {
+        top: 10px;
+        width: 46px;
+        height: calc(100vh - 20px);
+        height: calc(100dvh - 20px);     /* para sa mobile address bar */
+        padding: 14px 0;
+        gap: 6px;
+        border-left: 0;
+        border-radius: 0 8px 8px 0;
+    }
+
+    .sidebarTitle {
+        margin-bottom: 12px;
+    }
+
+    .dashboardSec {
+        padding: 18px 12px;
+    }
+
+    .dashboardHead {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .dashMeta {
+        flex-wrap: wrap;
+        row-gap: 4px;
+    }
+
+    .dashMetaDot {
+        display: none;
+    }
+
+    .dashboardCards,
+    .reportCards,
+    .settingsGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .toolbar > * {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 430px) {
+    .sectionHeader {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+
+/* =====================================================================
+   8. PRINT / ACCESSIBILITY
+===================================================================== */
+.printInfo {
+    display: none;
+}
+
+@media print {
+    .headerSec,
+    .optionSec {
+        display: none;
+    }
+
+    .mainLayout {
+        display: block;
+        padding: 0;
+    }
+
+    .dashboardSec {
+        padding: 0;
+        border: 0;
+    }
+
+    .printInfo {
+        display: block;
+        margin-bottom: 14px;
+    }
+
+    .printInfo h1 {
+        margin: 0 0 6px;
+        font-size: 20px;
+    }
+
+    .printInfo p {
+        margin: 2px 0;
+        font-size: 12px;
+        color: #444;
+    }
+
+    .printInfo p:empty {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+    }
+}
+
+/* =====================================================================
+   SKIP LINK  (para sa keyboard/screen reader users)
+==================================================================== */
+.skipLink {
+    position: fixed;
+    left: 8px;
+    top: -80px;
+    z-index: 10002;
+    padding: 10px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card);
+    color: var(--foreground);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: var(--shadow-panel);
+    transition: top 0.15s ease;
+}
+
+.skipLink:focus {
+    top: 8px;
+}
+
+/* Ang skip target ay container, hindi interactive — walang malaking outline */
+#pageContent:focus {
+    outline: none;
+}
+/* HEADER: maitim */
+.headerSec {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border-bottom: 3px solid var(--accent);
+}
+
+.headerSec h2,
+.headerSec button {
+    color: var(--primary-foreground);
+}
+
+.headerSec button:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+/* =====================================================
+   COLOR THEMES
+   Ang default (Lime) ay ang :root sa taas. Ang mga ito ay
+   nagpapalit lang ng mga variable.
+===================================================== */
+
+/* OCEAN */
+:root[data-theme="ocean"] {
+    --route-a: #16324F;
+    --route-b: #0EA5D9;
+    --stop-1: #0E7490;
+    --stop-2: #1D4ED8;
+    --stop-3: #0F766E;
+    --stop-4: #6D28D9;
+    --stop-5: #E11D48;
+    --background: #E8EEF4;
+    --card: #FFFFFF;
+    --secondary: #EEF3F8;
+    --foreground: #12202E;
+    --primary: #16324F;
+    --primary-foreground: #FFFFFF;
+    --muted-foreground: #566879;
+    --text-soft: #3D4E5F;
+    --border: #CFD9E3;
+    --border-soft: #E1E8EF;
+    --accent: #4CC9F0;
+    --accent-foreground: #05283A;
+    --packed: #D5E3FF;
+    --packed-foreground: #1C3A6E;
+    --ring: #2C7DA0;
+}
+
+/* SUNSET */
+:root[data-theme="sunset"] {
+    --route-a: #3B2A1E;
+    --route-b: #E8890C;
+    --stop-1: #C2410C;
+    --stop-2: #B91C1C;
+    --stop-3: #A16207;
+    --stop-4: #9D174D;
+    --stop-5: #6D28D9;
+    --background: #F2EBE3;
+    --card: #FFFDFA;
+    --secondary: #F7F1EA;
+    --foreground: #2B2017;
+    --primary: #3B2A1E;
+    --primary-foreground: #FFFFFF;
+    --muted-foreground: #6F5F50;
+    --text-soft: #4F4234;
+    --border: #DDD0C2;
+    --border-soft: #EBE2D7;
+    --accent: #FFB547;
+    --accent-foreground: #3A2500;
+    --packed: #FFD9C2;
+    --packed-foreground: #6B2E0E;
+    --ring: #96600A;                     /* 4.47 on bg, 5.20 on card */
+}
+
+/* MIDNIGHT (dark) */
+:root[data-theme="midnight"] {
+    --route-a: #ECEFF4;
+    --route-b: #BFF100;
+    --stop-1: #BFF100;
+    --stop-2: #4CC9F0;
+    --stop-3: #FFB547;
+    --stop-4: #FF6B9A;
+    --stop-5: #A98BFF;
+    color-scheme: dark;
+    --background: #0E1014;
+    --card: #161A21;
+    --secondary: #1D222B;
+    --foreground: #ECEFF4;
+    --primary: #ECEFF4;
+    --primary-foreground: #12151B;
+    --muted-foreground: #9BA3B1;
+    --text-soft: #C3C9D4;
+    --border: #2A303B;
+    --border-soft: #222833;
+    --accent: #BFF100;
+    --accent-foreground: #202413;
+    --packed: #3B2F57;
+    --packed-foreground: #E2CBFF;
+    --ring: #BFF100;
+    --destructive: #FF6B68;
+    --destructive-soft: #3A1F1F;
+    --green: #4CC37A;
+    --green-ink: #4CC37A;                 /* sa madilim na surface, sapat na ang kontrast */
+    --orange: #F2A33A;
+    --blue: #6FA8FF;
+    --violet: #A98BFF;
+    --shadow-panel: 0 8px 36px rgba(0, 0, 0, 0.45);
+}
+
+/* Madilim na mapa sa Midnight */
+:root[data-theme="midnight"] .leaflet-tile-pane {
+    filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9);
+}
+
+/* Theme picker sa header */
+.themePicker {
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card);
+    color: var(--foreground);
+    font-size: 13px;
+    cursor: pointer;
+}
+/* =====================================================
+   MGA MENSAHE (notify) AT KUMPIRMASYON (confirmBox)
+===================================================== */
+#toastHost {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: min(420px, calc(100vw - 32px));
+    pointer-events: none;
+}
+
+/* Isang base lang; ang success/error ang nagdadagdag ng kulay */
+.toast {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 14px 44px 14px 16px;
+    background: var(--card);
+    color: var(--foreground);
+    text-align: left;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--muted-foreground);
+    border-top: 5px solid var(--primary);
+    border-radius: 8px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    font-size: 14px;
+    pointer-events: auto;
+    animation: popIn 0.18s ease-out;
+}
+
+.toast::before {
+    content: "Information";
+    color: var(--foreground);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.toast.success { border-left-color: var(--green); border-top-color: var(--border); }
+.toast.error   { border-left-color: var(--destructive); border-top-color: var(--border); }
+
+.toast.success::before { content: "Success"; }
+.toast.error::before   { content: "Error"; }
+
+.toastMsg {
+    flex: none;
+    width: 100%;
+    max-height: 60vh;
+    overflow-y: auto;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.toastClose {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--muted-foreground);
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.toastClose:hover { background: var(--secondary); color: var(--foreground); }
+
+.toast.detail { align-items: stretch; }
+.toast.detail::before { align-self: flex-start; }
+.toast.detail .toastMsg::first-line { font-weight: 600; }
+
+.confirmOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(15, 23, 42, 0.5);
+}
+
+.confirmBox {
+    width: 400px;
+    max-width: 100%;
+    padding: 30px 28px 24px;
+    background: var(--card);
+    color: var(--foreground);
+    text-align: center;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3);
+    animation: popIn 0.18s ease-out;
+}
+
+.confirmBox::before {
+    content: "?";
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 14px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--secondary);
+    color: var(--foreground);
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.confirmBox:has(.btnDanger)::before {
+    content: "!";
+    background: var(--destructive-soft);
+    color: var(--destructive);
+}
+
+.confirmText {
+    margin: 0 0 22px;
+    font-size: 16px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.confirmActions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.confirmActions button { min-width: 120px; }
+/* Animation ng route line sa Live Map */
+.route-line { stroke-linecap: round; stroke-linejoin: round; }
+
+/* Puting halo sa ilalim ng ruta */
+.route-casing {
+    stroke: #ffffff;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+:root[data-theme="midnight"] .route-casing { stroke: #0B0F14; }
+@media (prefers-reduced-motion: reduce) { .route-line { animation: none !important; } }
+/* ---------- Overdue badge (Deliveries page) ---------- */
+.statusBadge.lateBadge {
+    margin-left: 6px;
+    background: var(--destructive-soft);
+    color: var(--destructive);
+}
+/* ---------- Delivery history ---------- */
+.historyList {
+    display: grid;
+    gap: 10px;
+    max-height: 55vh;
+    overflow-y: auto;
+    margin: 4px 0 16px;
+}
+
+.historyItem {
+    padding: 10px 12px;
+    background: var(--secondary);
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+}
+
+.historyMeta {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--muted-foreground);
+}
+
+.historyItem p {
+    margin: 6px 0 0;
+    font-size: 13px;
+    color: var(--text-soft);
+}
+
+.historyEmpty {
+    margin: 8px 0;
+    font-size: 14px;
+    color: var(--muted-foreground);
+}
+
+/* =====================================================================
+   DASHBOARD (redesigned)
+===================================================================== */
+
+.dashPage {
+    gap: 20px;
+    padding: 4px 0 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+}
+
+/* ---------- Topbar ---------- */
+.dashTopbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px;
+}
+
+.dashMeta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    color: var(--muted-foreground);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.dashMetaDot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--muted-foreground);
+    opacity: 0.6;
+}
+
+.dashWelcome h3,
+.dashWelcome h1 {
+    margin: 0 0 6px;
+    color: var(--foreground);
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+}
+
+.dashWelcome p {
+    margin: 0;
+    color: var(--muted-foreground);
+    font-size: 14px;
+}
+
+.dashActions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.dashActions .btnOutline {
+    padding: 10px 16px;
+    border-radius: 8px;
+    background: var(--card);
+}
+
+/* ---------- KPI cards ---------- */
+.kpiGrid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.kpiCard {
+    position: relative;
+    padding: 18px 20px 17px;
+    overflow: hidden;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.kpiCard::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: var(--kpi-accent, var(--primary));
+}
+
+.kpiTop {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: var(--muted-foreground);
+}
+
+.kpiIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--secondary);
+    color: var(--foreground);
+}
+
+.kpiIcon svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.kpiLabel {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.055em;
+    text-transform: uppercase;
+}
+
+.kpiValue {
+    margin: 14px 0 7px;
+    color: var(--foreground);
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+.kpiFoot {
+    color: var(--muted-foreground);
+    font-size: 12px;
+    line-height: 1.35;
+}
+
+.kpiCard.is-overdue {
+    background: var(--destructive-soft);
+    border-color: transparent;
+}
+
+.kpiCard.is-overdue .kpiValue {
+    color: var(--destructive);
+}
+
+.kpiCard.is-clear::before {
+    background: var(--green);
+}
+
+/* ---------- Panels ---------- */
+.dashGrid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.75fr) minmax(280px, 1fr);
+    gap: 16px;
+}
+
+.dashPanel {
+    min-width: 0;
+    padding: 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.dashPanelHead {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.dashPanelHead h2 {
+    margin: 0 0 4px;
+    color: var(--foreground);
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.dashPanelHead p {
+    margin: 0;
+    color: var(--muted-foreground);
+    font-size: 12px;
+}
+
+.dashPanelHead select {
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card);
+    color: var(--foreground);
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.dashPanelHead select:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+}
+
+/* ---------- Activity chart ---------- */
+.activityPanel {
+    display: flex;
+    flex-direction: column;
+}
+
+.activityMeta {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.activityMeta strong {
+    color: var(--foreground);
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+.activityMeta span {
+    color: var(--muted-foreground);
+    font-size: 12px;
+}
+
+.activityChart {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    margin-top: 4px;
+}
+
+.activityBars {
+    display: flex;
+    flex: 1;
+    align-items: flex-end;
+    gap: 10px;
+    min-height: 190px;
+    padding: 8px 4px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.activityCol {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    height: 100%;
+}
+
+.activityValue {
+    min-height: 12px;
+    color: var(--muted-foreground);
+    font-size: 10px;
+    font-variant-numeric: tabular-nums;
+}
+
+.activityBar {
+    width: min(38px, 72%);
+    min-height: 2px;
+    border-radius: 6px 6px 0 0;
+    background: var(--primary);
+    opacity: 0.85;
+    transition: height 0.45s ease, background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.activityCol:hover .activityBar {
+    background: var(--accent);
+    opacity: 1;
+}
+
+.activityDays {
+    display: flex;
+    gap: 10px;
+    padding: 8px 4px 0;
+}
+
+.activityDays span {
+    flex: 1 1 0;
+    overflow: hidden;
+    color: var(--muted-foreground);
+    font-size: 11px;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ---------- Status breakdown ---------- */
+.breakdownList {
+    display: flex;
+    flex-direction: column;
+}
+
+.breakdownRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px 10px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.breakdownRow:first-child {
+    padding-top: 0;
+}
+
+.breakdownRow:last-of-type {
+    border-bottom: 0;
+}
+
+.breakdownTop {
+    display: flex;
+    grid-column: 1 / -1;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+}
+
+.breakdownName {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-soft);
+}
+
+.breakdownTop strong {
+    color: var(--foreground);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+}
+
+.breakdownTrack {
+    height: 7px;
+    overflow: hidden;
+    border-radius: 99px;
+    background: var(--secondary);
+}
+
+.breakdownFill {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--primary);
+    transition: width 0.5s ease;
+}
+
+.breakdownFill.pending    { background: var(--orange); }
+.breakdownFill.processing { background: var(--blue); }
+.breakdownFill.out        { background: var(--violet); }
+.breakdownFill.delivered  { background: var(--green); }
+.breakdownFill.cancelled  { background: var(--destructive); }
+
+.breakdownPct {
+    align-self: center;
+    color: var(--muted-foreground);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+}
+
+.breakdownFoot {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-soft);
+    color: var(--muted-foreground);
+    font-size: 12px;
+}
+
+/* ---------- Recent deliveries ---------- */
+.recentPanel {
+    padding-bottom: 8px;
+}
+
+.recentPanel .tableWrapper {
+    width: 100%;
+}
+
+.recentPanel .recentDeliveryTable {
+    min-width: 640px;
+}
+
+.recentPanel .recentDeliveryTable th:first-child,
+.recentPanel .recentDeliveryTable td:first-child {
+    padding-left: 0;
+}
+
+.recentPanel .recentDeliveryTable th:last-child,
+.recentPanel .recentDeliveryTable td:last-child {
+    padding-right: 0;
+}
+
+.recentPanel .recentDeliveryTable th {
+    background: transparent;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.045em;
+    text-transform: uppercase;
+}
+
+.recentPanel .recentDeliveryTable td {
+    padding-top: 14px;
+    padding-bottom: 14px;
+}
+
+.recentPanel .recentDeliveryTable tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.recentPanel .recentDeliveryTable tbody tr:hover {
+    background: var(--secondary);
+}
+
+.emptyRow {
+    padding: 24px 0 !important;
+    color: var(--muted-foreground);
+    text-align: center;
+}
+
+.mutedText {
+    color: var(--muted-foreground);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1150px) {
+    .kpiGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .dashGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 650px) {
+    .dashTopbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .dashWelcome h3,
+    .dashWelcome h1 {
+        font-size: 24px;
+    }
+
+    .dashActions {
+        width: 100%;
+    }
+
+    .dashActions > * {
+        flex: 1;
+        text-align: center;
+    }
+
+    .kpiGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .kpiValue {
+        font-size: 30px;
+    }
+
+    .dashPanel {
+        padding: 16px;
+    }
+
+    .activityBars {
+        gap: 6px;
+        min-height: 160px;
+    }
+
+    .activityDays {
+        gap: 6px;
+    }
+}
+
+@media print {
+    .dashActions,
+    .dashPanelHead select {
+        display: none;
+    }
+
+    .dashPage {
+        gap: 12px;
+    }
+
+    .kpiCard,
+    .dashPanel {
+        box-shadow: none;
+    }
+}
+
+/* Midnight theme: keep the app header dark (--primary is light in this theme) */
+:root[data-theme="midnight"] .headerSec {
+    background: #0B0D11;
+    color: var(--foreground);
+}
+
+:root[data-theme="midnight"] .headerSec h2,
+:root[data-theme="midnight"] .headerSec button {
+    color: var(--foreground);
+}
+/* =====================================================
+   POP-UP MESSAGES: laging nasa gitna ng screen
+   (alert, confirm, at mga modal)
+===================================================== */
+@keyframes popIn {
+    from { opacity: 0; transform: scale(0.92); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+/* ---- Kumpirmasyon (Delete? Log out?) ---- */
+/* ---- Mga modal (Add / Edit forms) ---- */
+.modalBox { animation: popIn 0.18s ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+    .toast, .confirmBox, .modalBox { animation: none; }
+}
+
+/* ---- Naka-lock na field (Delivery Number, Address) ---- */
+input[readonly],
+textarea[readonly] {
+    background: var(--secondary);
+    color: var(--muted-foreground);
+    cursor: not-allowed;
+}
+
+.modalBox input[readonly]:focus {
+    outline: none;
+    border-color: var(--border);
+}
+
+/* ---- Theme Color sa Settings ---- */
+#themeSlot { align-self: center; }
+#themeSlot .themePicker { min-width: 150px; }
+
+/* Hindi makita ang address sa mapa / kulang ang address */
+.modalBox input.fieldInvalid,
+.modalBox input.fieldInvalid:focus {
+    border-color: #d93025;
+    background: rgba(217, 48, 37, 0.08);
+    box-shadow: 0 0 0 3px rgba(217, 48, 37, 0.18);
+}
+
+.formError {
+    margin: 10px 0 0;
+    padding: 9px 12px;
+    border-radius: 8px;
+    background: rgba(217, 48, 37, 0.1);
+    color: #d93025;
+    font-size: 14px;
+}
+/* ===== CUSTOMER ADDRESS PICKER ===== */
+.addressSearchWrap {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.addressSuggestions {
+    max-height: 210px;
+    overflow-y: auto;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow-panel);
+}
+
+.addressSuggestion {
+    display: block;
+    width: 100%;
+    padding: 8px 10px;
+    border: 0;
+    border-bottom: 1px solid var(--border-soft);
+    background: transparent;
+    color: var(--foreground);
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
+}
+
+.addressSuggestion:last-child {
+    border-bottom: 0;
+}
+
+.addressSuggestion:hover,
+.addressSuggestion:focus-visible {
+    background: var(--secondary);
+}
+
+.addressSuggestion b {
+    display: block;
+    font-size: 13px;
+}
+
+.addressSuggestion small {
+    display: block;
+    margin-top: 2px;
+    color: var(--muted-foreground);
+    font-size: 12px;
+    line-height: 1.35;
+}
+
+.addressSuggestion.empty {
+    cursor: default;
+    color: var(--muted-foreground);
+}
+
+.addressMapHead {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.addressMapHead span {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-soft);
+}
+
+.addressMapHead small {
+    font-size: 11px;
+    color: var(--muted-foreground);
+    text-align: right;
+}
+.addressMapTitle {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.pinLabelIcon {
+    width: 13px;
+    height: 13px;
+    display: inline-block;
+    flex: none;
+    background: currentColor;
+    -webkit-mask: url("assets/pin-1-svgrepo-com.svg") center / contain no-repeat;
+    mask: url("assets/pin-1-svgrepo-com.svg") center / contain no-repeat;
+}
+
+.customerPin {
+    width: 40px;
+    height: 40px;
+    display: block;
+    background: var(--primary);
+    -webkit-mask: url("assets/customer-pin-icon.svg") center / contain no-repeat;
+    mask: url("assets/customer-pin-icon.svg") center / contain no-repeat;
+    filter: drop-shadow(0 0 1px var(--card)) drop-shadow(0 2px 3px rgba(0,0,0,.35));
+}
+.customerMap {
+    height: 220px;
+    margin-bottom: 8px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--secondary);
+}
+
+@media (max-width: 650px) {
+    .customerMap {
+        height: 180px;
+    }
+}
+/* ---- Deliveries: maraming customer sa isang ID ---- */
+.custLine {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    line-height: 22px;
+}
+
+.stopNo {
+    color: var(--muted-foreground);
+    font-size: 15px;
+}
+
+.moreBadge {
+    padding: 2px 10px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--secondary);
+    color: var(--foreground);
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s;
+}
+
+.moreBadge:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-foreground);
+}
+
+.moreList {
+    margin-top: 2px;
+}
+
+.moreList[hidden] {
+    display: none;
+}
+
+.moreLess {
+    margin-top: 4px;
+}
+
+/* Kapag marami ang customer, nasa itaas ang ibang column para katabi ng unang customer */
+.dataTable tr.multiRow td {
+    vertical-align: top;
+    line-height: 22px;
+}
+/* ---- Status badge: pare-pareho ang laki, compact ---- */
+.statusBadge {
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+    height: 22px;
+    padding: 0 10px;
+    border: 1px solid transparent;      /* pantay ang laki ng lahat, may border man o wala */
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.2px;
+    text-transform: none;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+/* ---- Kulay ng status: Pending = default, iba = tugma sa pangalan ---- */
+.pendingBadge {
+    background: var(--secondary);
+    color: var(--foreground);
+    border-color: var(--border);
+}
+
+.processingBadge,
+.outBadge,
+.deliveredBadge,
+.cancelledBadge {
+    --badge: var(--muted-foreground);
+    background: color-mix(in srgb, var(--badge) 16%, var(--card));
+    color: color-mix(in srgb, var(--badge) 60%, var(--foreground));
+    border-color: color-mix(in srgb, var(--badge) 40%, var(--card));
+}
+
+.processingBadge { --badge: var(--blue); }
+.outBadge       { --badge: var(--orange); }
+.deliveredBadge { --badge: var(--green); }
+.cancelledBadge { --badge: var(--destructive); }
+
+/* ---- View Delivery (kumpletong detalye) ---- */
+.viewBox { width: 560px; }
+
+.viewList {
+    margin: 0;
+    display: grid;
+    gap: 10px;
+}
+
+.viewRow {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 12px;
+    align-items: center;
+    font-size: 14px;
+}
+
+.viewRow dt { color: var(--muted-foreground); }
+.viewRow dd { margin: 0; overflow-wrap: anywhere; }
+
+.viewSection {
+    margin: 22px 0 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted-foreground);
+}
+
+.viewStop {
+    margin-top: 10px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+
+.viewStopHead {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+@media (max-width: 480px) {
+    .viewRow { grid-template-columns: 1fr; gap: 2px; }
+}
+/* Employee status */
+.activeBadge   { background: #DDF3E4; color: #14532D; }
+.disabledBadge { background: #FBE4E2; color: #8A1F17; }
+
+:root[data-theme="midnight"] .activeBadge   { background: #16351F; color: #7EE2A0; }
+:root[data-theme="midnight"] .disabledBadge { background: #3A1F1F; color: #FF9B98; }
+/* Rider page (admin view): back arrow below the header, outside the title's padding */
+.headerSec #backBtn {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 12px;
+    width: 36px;
+    height: 36px;
+    padding: 8px;
+    box-sizing: border-box;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    background: var(--card);
+    color: var(--foreground);
+    line-height: 0;
+}
+
+.headerSec #backBtn svg { display: block; width: 18px; height: 18px; }
+.headerSec #backBtn:hover { background: var(--secondary); }
+.headerSec #backBtn:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+body.hasBack .riderWrap { padding-top: 64px; }
+/* Dark Matter ay madilim na talaga, kaya walang invert */
+:root[data-theme="midnight"] .leaflet-tile-pane {
+    filter: none;
+}
+/* Hayaan ang kulay ng tiles; bahagyang linawin lang */
+.leaflet-tile-pane {
+    filter: saturate(1.04) contrast(1.02);
+}
+/* =====================================================
+   MAP POLISH (Pack 1)
+===================================================== */
+
+/* Radar (rings + umiikot na sinag) sa driver marker.
+   May animation din ang stale — mas mabagal lang (grey). */
+.location-marker {
+    --radar: var(--muted-foreground);
+    --radar-speed: 4.5s;
+    position: relative;
+}
+
+.location-marker.fresh {
+    --radar: var(--accent);
+    --radar-speed: 2.4s;
+}
+
+/* Tatlong pabilog na ring, paulit-ulit na lumalabas */
+.location-marker::before {
+    content: "";
+    position: absolute;
+    inset: -20px;
+    border-radius: 50%;
+    pointer-events: none;
+    background: radial-gradient(
+        circle,
+        transparent 0 20px,
+        var(--radar) 20px 21.5px,
+        transparent 21.5px 26px,
+        var(--radar) 26px 27.5px,
+        transparent 27.5px 32px,
+        var(--radar) 32px 33.5px,
+        transparent 33.5px 100%
+    );
+    animation: radarRings var(--radar-speed) ease-out infinite;
+}
+
+
+
+@keyframes radarRings {
+    0%   { transform: scale(0.78); opacity: 0; }
+    20%  { opacity: 0.6; }
+    100% { transform: scale(1.08); opacity: 0; }
+}
+
+/* Reduced motion: huwag itago — pabagalin lang */
+@media (prefers-reduced-motion: reduce) {
+    .location-marker { --radar-speed: 8s; }
+}
+
+/* Popup na tugma sa theme */
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+    background: var(--card);
+    color: var(--foreground);
+}
+
+.leaflet-popup-content-wrapper {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: var(--shadow-panel);
+}
+
+.leaflet-popup-content {
+    margin: 12px 14px;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.leaflet-container a.leaflet-popup-close-button {
+    color: var(--muted-foreground);
+}
+
+/* Tooltip (pangalan ng customer sa pin) */
+.leaflet-tooltip {
+    background: var(--card);
+    color: var(--foreground);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    box-shadow: var(--shadow-panel);
+    font-size: 12px;
+}
+
+.leaflet-tooltip-top:before    { border-top-color: var(--card); }
+.leaflet-tooltip-bottom:before { border-bottom-color: var(--card); }
+.leaflet-tooltip-left:before   { border-left-color: var(--card); }
+.leaflet-tooltip-right:before  { border-right-color: var(--card); }
+
+/* Attribution: banayad pero nakikita pa rin (kailangan ito ng CARTO at OSM) */
+.leaflet-control-attribution {
+    background: var(--card) !important;
+    color: var(--muted-foreground) !important;
+    font-size: 10px;
+    border-radius: 6px 0 0 0;
+}
+
+.leaflet-control-attribution a {
+    color: var(--text-soft) !important;
+}
+
+/* Scale bar */
+.leaflet-control-scale-line {
+    background: color-mix(in srgb, var(--card) 88%, transparent);
+    border-color: var(--border);
+    color: var(--foreground);
+    border-radius: 4px;
+    font-size: 10px;
+}
+
+/* Banayad na lilim sa gilid ng mapa */
+.liveMapWrap::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 400;
+    border-radius: 8px;
+    pointer-events: none;
+    box-shadow: inset 0 0 24px -16px rgba(0, 0, 0, .5);
+}
+
+/* ---------- Map style picker ---------- */
+.mapStylePicker {
+    display: flex;
+    gap: 2px;
+    padding: 3px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow-panel);
+}
+
+.mapStylePicker button {
+    margin: 0;
+    padding: 6px 8px;
+    border: 0;
+    border-radius: 5px;
+    background: transparent;
+    color: var(--muted-foreground);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.mapStylePicker button:hover { background: var(--secondary); color: var(--foreground); }
+.mapStylePicker button[aria-pressed="true"] { background: var(--primary); color: var(--primary-foreground); }
+.mapStylePicker button:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+/* Topo/Imagery: walang filter; dilim lang sa Midnight para hindi nakakasilaw */
+:root[data-map-style="topo"] .leaflet-tile-pane,
+:root[data-map-style="imagery"] .leaflet-tile-pane {
+    filter: none;
+}
+:root[data-theme="midnight"][data-map-style="topo"] .leaflet-tile-pane {
+    filter: brightness(.78) saturate(.9) contrast(1.02);
+}
+:root[data-theme="midnight"][data-map-style="imagery"] .leaflet-tile-pane {
+    filter: brightness(.72) saturate(.85);
+}
+
+/* ---------- Mobile: tables as cards (Deliveries + Dashboard) ---------- */
+@media screen and (max-width: 650px) {
+    .deliveryTable thead,
+    .recentDeliveryTable thead {
+        display: none;
+    }
+
+    .deliveryTable,
+    .deliveryTable tbody,
+    .recentDeliveryTable,
+    .recentDeliveryTable tbody {
+        display: block;
+    }
+
+    .recentPanel .recentDeliveryTable,
+    .deliveryTable {
+        min-width: 0;
+    }
+
+    .deliveryTable tr,
+    .recentDeliveryTable tr {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 4px 10px;
+        padding: 14px;
+        margin-bottom: 10px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: var(--card);
+    }
+
+    .deliveryTable td,
+    .recentDeliveryTable td,
+    .recentPanel .recentDeliveryTable td {
+        display: block;
+        padding: 0;
+        border: 0;
+        min-width: 0;
+        font-size: 13px;
+    }
+
+    .deliveryTable td:nth-child(1),
+    .recentDeliveryTable td:nth-child(1) {
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .deliveryTable td:nth-child(5),
+    .recentDeliveryTable td:nth-child(5) {
+        grid-column: 2;
+        grid-row: 1;
+        justify-self: end;
+    }
+
+    .deliveryTable td:nth-child(2),
+    .recentDeliveryTable td:nth-child(2) {
+        grid-column: 1 / -1;
+        font-weight: 500;
+    }
+
+    .deliveryTable td:nth-child(3),
+    .deliveryTable td:nth-child(4),
+    .recentDeliveryTable td:nth-child(3),
+    .recentDeliveryTable td:nth-child(4) {
+        grid-column: 1 / -1;
+        color: var(--muted-foreground);
+        font-size: 12px;
+    }
+
+    .deliveryTable td:nth-child(3)::before,
+    .recentDeliveryTable td:nth-child(3)::before {
+        content: "Driver: ";
+    }
+
+    .deliveryTable td:nth-child(4)::before,
+    .recentDeliveryTable td:nth-child(4)::before {
+        content: "Date: ";
+    }
+
+    .deliveryTable td:nth-child(6) {
+        grid-column: 1 / -1;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid var(--border-soft);
+    }
+
+    .deliveryTable td[colspan],
+    .recentDeliveryTable td[colspan] {
+        grid-column: 1 / -1;
+        padding: 8px 0;
+        text-align: center;
+        color: var(--muted-foreground);
+    }
+
+    .deliveryTable tbody tr:hover,
+    .recentDeliveryTable tbody tr:hover {
+        background: var(--card);
+    }
+}
+
+/* ---------- Sidebar labels (hover/focus) ---------- */
+.optionSec {
+    z-index: 20;
+}
+
+.optionSec button {
+    position: relative;
+}
+
+.optionSec button::after {
+    content: attr(aria-label);
+    position: absolute;
+    left: calc(100% + 12px);
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 5px 9px;
+    border-radius: 6px;
+    background: var(--foreground);
+    color: var(--background);
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.12s ease;
+    z-index: 30;
+}
+
+.optionSec button:hover::after,
+.optionSec button:focus-visible::after {
+    opacity: 1;
+}
+
+/* ---------- Mas malaking touch targets sa mobile ---------- */
+@media (max-width: 650px) {
+    .iconBtn {
+        width: 42px;
+        height: 42px;
+    }
+}
+
+/* ---------- Mobile: Reports tables as cards ---------- */
+@media screen and (max-width: 650px) {
+    .reportTable thead {
+        display: none;
+    }
+
+    .reportTable,
+    .reportTable tbody {
+        display: block;
+    }
+
+    .reportTable tr {
+        display: block;
+        padding: 12px 14px;
+        margin-bottom: 10px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: var(--card);
+    }
+
+    .reportTable td {
+        display: block;
+        padding: 0;
+        border: 0;
+        min-width: 0;
+    }
+
+    .reportTable td[colspan] {
+        padding: 8px 0;
+        text-align: center;
+        color: var(--muted-foreground);
+    }
+
+    /* Driver / Customer / Month summary */
+    :is(#driverRows, #customerRows, #monthRows) td:nth-child(1) {
+        margin-bottom: 4px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--foreground);
+    }
+
+    :is(#driverRows, #customerRows, #monthRows) td:nth-child(n+2) {
+        display: inline-block;
+        margin-right: 16px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--foreground);
+    }
+
+    :is(#driverRows, #customerRows, #monthRows) td:nth-child(n+2)::before {
+        font-weight: 400;
+        color: var(--muted-foreground);
+    }
+
+    :is(#driverRows, #customerRows, #monthRows) td:nth-child(2)::before {
+        content: "Total: ";
+    }
+
+    :is(#driverRows, #customerRows, #monthRows) td:nth-child(3)::before {
+        content: "Delivered: ";
+    }
+
+    :is(#driverRows, #customerRows, #monthRows) td:nth-child(4)::before {
+        content: "Cancelled: ";
+    }
+
+    /* Rider report */
+    #riderRows td {
+        font-size: 12px;
+        color: var(--muted-foreground);
+    }
+
+    #riderRows td:nth-child(1) {
+        margin-bottom: 4px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--foreground);
+    }
+
+    #riderRows td:nth-child(2)::before {
+        content: "Customer: ";
+    }
+
+    #riderRows td:nth-child(3)::before {
+        content: "Delivery date: ";
+    }
+
+    #riderRows td:nth-child(4)::before {
+        content: "Delivered at: ";
+    }
+
+    #riderRows td:nth-child(5)::before {
+        content: "Rider: ";
+    }
+
+    #riderRows td:nth-child(6) {
+        margin-top: 6px;
+    }
+
+    #riderRows td:nth-child(6)::before {
+        content: "Proof: ";
+        display: block;
+    }
+
+    #riderRows td:nth-child(7) {
+        margin-top: 4px;
+    }
+
+    #riderRows td:nth-child(7)::before {
+        content: "Notes: ";
+        display: block;
+    }
+
+    .reportTable tbody tr:hover {
+        background: var(--card);
+    }
+}
+
+/* ---------- Mobile touch targets: 44px minimum ---------- */
+@media (max-width: 650px) {
+    .headerSec button {
+        min-height: 44px;
+    }
+
+    .optionSec button {
+        width: 44px;
+        height: 44px;
+    }
+
+    .btnPrimary,
+    .btnOutline,
+    .btnDanger,
+    .newDeliveryBtn {
+        min-height: 44px;
+    }
+
+    .iconBtn {
+        width: 44px;
+        height: 44px;
+    }
+
+    select {
+        min-height: 44px;
+    }
+
+    .moreBadge {
+        min-height: 32px;
+        padding: 6px 10px;
+    }
+}
+
+/* =====================================================
+   COMPANY LOGO
+   Isang SVG lang ang brand: header, sidebar, login.
+   Mask para sumunod sa theme color (puti sa Midnight).
+====================================================== */
+
+/* Header: buong wordmark */
+.headerSec h2 {
+    width: 176px;
+    height: 28px;
+    font-size: 0;                 /* text hidden, logo ang kita */
+    background: currentColor;
+    -webkit-mask: url("assets/company-logo.svg") left center / contain no-repeat;
+    mask: url("assets/company-logo.svg") left center / contain no-repeat;
+}
+
+/* Sidebar: truck mark lang (crop sa kaliwa ng SVG) */
+.sidebarTitle {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: currentColor;
+    -webkit-mask: url("assets/company-logo.svg") left center / 200px 32.7px no-repeat;
+    mask: url("assets/company-logo.svg") left center / 200px 32.7px no-repeat;
+}
+
+.sidebarTitle::after {
+    content: none;
+}
+
+@media (max-width: 650px) {
+    .headerSec h2 {
+        width: 150px;
+        height: 24px;
+    }
+}
+
+/* =====================================================
+   PRINT: malinis na report sa papel
+   Light colors kahit Midnight, walang toolbar/filter,
+   tables ang ipi-print (hindi cards).
+====================================================== */
+@media print {
+    :root,
+    :root[data-theme] {
+        --background: #fff;
+        --card: #fff;
+        --secondary: #f3f3f3;
+        --foreground: #111;
+        --primary: #111;
+        --primary-foreground: #fff;
+        --muted-foreground: #444;
+        --text-soft: #333;
+        --border: #bbb;
+        --border-soft: #ddd;
+        --accent: #111;
+        --accent-foreground: #fff;
+        color-scheme: light;
+    }
+
+    body {
+        background: #fff;
+        color: #111;
+    }
+
+    .toolbar,
+    #repMessage,
+    #viewAllBtn,
+    .reportsPage .dashboardHead,
+    .dashPage .dashTopbar {
+        display: none !important;
+    }
+
+    .dashboardCards,
+    .printInfo {
+        break-inside: avoid;
+    }
+
+    .tableWrapper {
+        overflow: visible;
+    }
+
+    table {
+        width: 100%;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    tr {
+        break-inside: avoid;
+    }
+
+    h2 {
+        break-after: avoid;
+    }
+
+    /* Walang silbi sa papel ang action buttons */
+    .deliveryTable th:last-child,
+    .deliveryTable td:last-child {
+        display: none;
+    }
+}
+/* =====================================================
+   SIDEBAR: dikit sa content panel
+====================================================== */
+.mainLayout {
+    gap: 0;
+}
+
+.optionSec {
+    border-right: 0;
+    border-radius: 8px 0 0 8px;
+}
+
+.dashboardSec {
+    border-radius: 0 8px 8px 0;
+}
+/* =====================================================
+   LIVE MAP SHELL (scope: body.liveMapPage)
+====================================================== */
+.liveMapPage .mainLayout {
+    grid-template-columns: 68px minmax(0, 1fr);
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 12px;
+    align-items: stretch;
+}
+
+.liveMapPage .optionSec {
+    top: 12px;
+    height: calc(100vh - 24px);
+    height: calc(100dvh - 24px);
+}
+
+.liveMapPage .dashboardSec {
+    height: calc(100vh - 24px);
+    height: calc(100dvh - 24px);
+    min-height: 560px;
+    padding: 0;
+    gap: 0;
+    overflow: hidden;
+}
+
+.liveMapPage .liveGrid {
+    height: 100%;
+    grid-template-columns: 300px minmax(0, 1fr);
+    gap: 0;
+    position: relative;
+}
+
+.liveMapPage .liveList {
+    height: auto;
+    min-height: 0;
+    padding: 14px;
+    background: var(--card);
+    border-right: 1px solid var(--border);
+}
+
+.liveMapPage .liveListHead {
+    flex: 0 0 auto;
+}
+
+.liveMapPage #list {
+    margin-top: 12px;
+}
+
+.liveMapPage .liveMapWrap {
+    height: auto;
+    min-height: 0;
+    border-radius: 0 8px 8px 0;
+    overflow: hidden;
+}
+
+.liveMapPage .liveTopbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 600;
+    min-height: 60px;
+    padding: 8px 12px 8px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+}
+
+.liveMapPage .liveTopbarTitle {
+    min-width: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+}
+
+.liveMapPage .liveTopbarTitle h1 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--foreground);
+}
+
+.liveMapPage .liveTopbarActions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.liveMapPage .liveTopbarBtn {
+    min-height: 36px;
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--secondary);
+    color: var(--foreground);
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.liveMapPage #ridersToggle {
+    display: none;
+}
+
+.liveMapPage .liveAccount {
+    position: relative;
+}
+
+.liveMapPage .liveAccountBtn {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    background: var(--secondary);
+    cursor: pointer;
+}
+
+.liveMapPage .liveAccountBtn img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.liveMapPage .liveAccountMenu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 700;
+    min-width: 160px;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow-panel);
+}
+
+.liveMapPage .liveAccountMenu[hidden] {
+    display: none;
+}
+
+.liveMapPage .liveAccountMenu button {
+    padding: 10px 12px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--foreground);
+    text-align: left;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.liveMapPage .liveAccountMenu button:hover {
+    background: var(--secondary);
+}
+
+.liveMapPage .routeInfo {
+    top: 76px;
+    right: 16px;
+    bottom: auto;
+    left: auto;
+    z-index: 550;
+    width: 320px;
+    max-height: calc(100% - 152px);
+    padding: 0;
+    overflow: auto;
+}
+
+.liveMapPage .routeInfoHead {
+    position: sticky;
+    top: 0;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border-soft);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.liveMapPage .routeInfoClose {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--secondary);
+    color: var(--foreground);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.liveMapPage #routeInfoBody {
+    padding: 12px 14px;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.liveMapPage .routeInfoEmpty {
+    margin: 0;
+    color: var(--muted-foreground);
+}
+/* ---------- Live Map mobile ---------- */
+@media (max-width: 850px) {
+    .liveMapPage .mainLayout {
+        grid-template-columns: 56px minmax(0, 1fr);
+        padding: 8px 8px 8px 0;
+    }
+
+    .liveMapPage .optionSec {
+        top: 8px;
+        height: calc(100vh - 16px);
+        height: calc(100dvh - 16px);
+    }
+
+    .liveMapPage .dashboardSec {
+        height: calc(100vh - 16px);
+        height: calc(100dvh - 16px);
+        min-height: 420px;
+    }
+
+    .liveMapPage .liveGrid {
+        grid-template-columns: minmax(0, 1fr);
+        overflow: hidden;
+    }
+
+    .liveMapPage .liveList {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 650;
+        width: min(78vw, 300px);
+        border-radius: 0;
+        box-shadow: var(--shadow-panel);
+        transform: translateX(-102%);
+        transition: transform 0.2s ease;
+    }
+
+    .liveMapPage.ridersOpen .liveList {
+        transform: none;
+    }
+
+    .liveMapPage #ridersToggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    .liveMapPage .liveAccountBtn {
+        width: 44px;
+        height: 44px;
+    }
+
+    .liveMapPage .liveAccountMenu button {
+        min-height: 44px;
+    }
+
+    .liveMapPage .liveTopbarTitle {
+        flex: 1 1 auto;
+        overflow: hidden;
+    }
+
+    .liveMapPage .liveTopbarTitle h1 {
+        font-size: 16px;
+        white-space: nowrap;
+    }
+
+    .liveMapPage .liveStatus {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .liveMapPage .liveTopbarActions {
+        flex: 0 0 auto;
+    }
+
+    .liveMapPage .routeInfo {
+        top: auto;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: auto;
+        max-height: 42vh;
+        padding: 0 0 env(safe-area-inset-bottom, 0);
+        border-radius: 12px 12px 0 0;
+        border-bottom: 0;
+        transform: translateY(105%);
+        transition: transform 0.22s ease;
+        z-index: 660;
+    }
+
+    .liveMapPage.hasSelection .routeInfo {
+        transform: none;
+    }
+
+    .liveMapPage .routeInfoClose {
+        width: 44px;
+        height: 44px;
+    }
+
+    .liveMapPage.hasSelection .leaflet-bottom {
+        bottom: 44%;
+        transition: bottom 0.22s ease;
+    }
+
+    .liveMapPage .rider {
+        min-height: 44px;
+    }
+}
+
+@media (max-width: 650px) {
+    .liveMapPage .liveTopbar {
+        padding: 6px 8px 6px 12px;
+    }
+
+    .liveMapPage .liveTopbarTitle {
+        gap: 8px;
+    }
+
+    .liveMapPage .liveStatus {
+        font-size: 11px;
+    }
+}
+/* =====================================================
+   LIVE MAP: full-bleed map + overlay panels
+====================================================== */
+.liveMapPage .mainLayout {
+    position: relative;
+    display: block;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 0;
+    overflow: hidden;
+}
+
+.liveMapPage .optionSec {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 56px;
+    height: auto;
+    padding: 16px 8px;
+    z-index: 900;
+    border-left: 0;
+    border-radius: 0 8px 8px 0;
+}
+
+.liveMapPage .dashboardSec {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    min-height: 0;
+    padding: 0;
+    gap: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    overflow: hidden;
+}
+
+.liveMapPage .liveGrid,
+.liveMapPage .liveMapWrap {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    min-height: 0;
+    border-radius: 0;
+    overflow: hidden;
+}
+
+.liveMapPage .liveTopbar {
+    top: 12px;
+    left: 68px;
+    right: 12px;
+    min-height: 0;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    align-items: flex-start;
+    pointer-events: none;
+    z-index: 700;
+}
+
+.liveMapPage .liveTopbarTitle {
+    padding: 8px 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow-panel);
+    pointer-events: auto;
+}
+
+.liveMapPage .liveTopbarActions {
+    pointer-events: auto;
+}
+
+/* Riders overlay */
+.liveMapPage .liveList {
+    position: absolute;
+    top: 76px;
+    bottom: 12px;
+    left: 68px;
+    width: min(300px, calc(100vw - 100px));
+    height: auto;
+    min-height: 0;
+    padding: 14px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow-panel);
+    transform: translateX(-12px);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: transform 0.2s ease, opacity 0.2s ease, visibility 0.2s;
+    z-index: 800;
+}
+
+.liveMapPage.ridersOpen .liveList {
+    transform: none;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+/* Delivery details overlay */
+.liveMapPage .routeInfo {
+    top: 76px;
+    right: 12px;
+    left: auto;
+    bottom: auto;
+    width: 320px;
+    max-height: calc(100% - 100px);
+    padding: 0;
+    overflow: auto;
+    transform: translateX(12px);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    z-index: 780;
+}
+
+.liveMapPage.hasSelection .routeInfo {
+    transform: none;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+@media (max-width: 850px) {
+    .liveMapPage .optionSec {
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 48px;
+        padding: 12px 2px;
+        border-left: 0;
+        border-radius: 0 8px 8px 0;
+    }
+
+    .liveMapPage .liveTopbar {
+        top: 8px;
+        left: 56px;
+        right: 8px;
+    }
+
+    .liveMapPage .liveTopbarTitle {
+        padding: 6px 10px;
+    }
+
+    .liveMapPage .liveList {
+        top: 8px;
+        bottom: 8px;
+        left: 56px;
+        width: min(280px, calc(100vw - 80px));
+    }
+
+    .liveMapPage .routeInfo {
+        top: auto;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: auto;
+        max-height: 42vh;
+        padding: 0 0 env(safe-area-inset-bottom, 0);
+        border-radius: 12px 12px 0 0;
+        border-bottom: 0;
+        transform: translateY(105%);
+        z-index: 850;
+    }
+
+    .liveMapPage.hasSelection .routeInfo {
+        transform: none;
+    }
+
+    .liveMapPage.hasSelection .leaflet-bottom {
+        bottom: 44%;
+        transition: bottom 0.22s ease;
+    }
+}
+/* =====================================================
+   SHARED APP SHELL
+====================================================== */
+.accountWrap {
+    position: relative;
+    flex: 0 0 auto;
+}
+
+.accountBtn {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    background: var(--secondary);
+    cursor: pointer;
+}
+
+.accountBtn img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.accountMenu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 950;
+    min-width: 160px;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow-panel);
+}
+
+.accountMenu[hidden] {
+    display: none;
+}
+
+.accountMenu button {
+    min-height: 40px;
+    padding: 10px 12px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--foreground);
+    text-align: left;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.accountMenu button:hover {
+    background: var(--secondary);
+}
+
+.appPage .mainLayout {
+    position: relative;
+    display: block;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 0;
+    overflow: hidden;
+}
+
+.appPage .optionSec {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 56px;
+    height: auto;
+    padding: 16px 8px;
+    z-index: 900;
+    border-left: 0;
+    border-radius: 0 8px 8px 0;
+}
+
+.appPage .dashboardSec {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    bottom: 12px;
+    left: 68px;
+    height: auto;
+    min-height: 0;
+    padding: 24px;
+    gap: 20px;
+    overflow-y: auto;
+    border-radius: 8px;
+}
+
+.appPage .dashboardHead {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.appPage .pageActions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0 0 auto;
+}
+
+.appPage .listPage {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.appPage .listPage .tablePanel {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.appPage .listPage .tablePanel .tableWrapper {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+}
+
+.appPage .dataTable thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--card);
+}
+
+@media (max-width: 850px) {
+    .appPage .optionSec {
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 48px;
+        padding: 12px 2px;
+        border-left: 0;
+        border-radius: 0 8px 8px 0;
+    }
+
+    .appPage .dashboardSec {
+        top: 8px;
+        right: 8px;
+        bottom: 8px;
+        left: 56px;
+        padding: 16px;
+        gap: 14px;
+    }
+
+    .accountBtn {
+        width: 44px;
+        height: 44px;
+    }
+
+    .accountMenu button {
+        min-height: 44px;
+    }
+}
+
+@media (max-width: 650px) {
+    .appPage .dashboardHead {
+        flex-wrap: wrap;
+    }
+
+    .appPage .listPage {
+        display: block;
+        overflow-y: auto;
+    }
+
+    .appPage .listPage .tablePanel {
+        display: block;
+    }
+
+    .appPage .listPage .tablePanel .tableWrapper {
+        overflow: visible;
+    }
+
+    .appPage .dataTable thead th {
+        position: static;
+    }
+}
+/* ---------- GENERIC PRINT: shared app shell ---------- */
+@media print {
+    .appPage .mainLayout {
+        position: static;
+        display: block;
+        height: auto;
+        overflow: visible;
+    }
+
+    .appPage .optionSec,
+    .appPage .accountWrap,
+    .appPage .dashboardHead,
+    .appPage .toolbar {
+        display: none !important;
+    }
+
+    .appPage .dashboardSec {
+        position: static;
+        height: auto;
+        min-height: 0;
+        padding: 0;
+        overflow: visible;
+        border: 0;
+    }
+}
+.riderWrap { max-width: 560px; margin: 0 auto; padding: 20px 16px 40px; }
+.riderWrap .panel { margin-bottom: 16px; }
+.riderWrap label { display: block; margin: 14px 0 6px; font-weight: 600; }
+.riderWrap select,
+.riderWrap input[type="file"],
+.riderWrap textarea { width: 100%; box-sizing: border-box; padding: 10px; font: inherit; }
+.riderWrap .proofDrop {
+display: flex;
+flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            margin-top: 6px;
+            padding: 22px 16px;
+            border: 1px dashed var(--border);
+            border-radius: 10px;
+            background: var(--secondary);
+            cursor: pointer;
+            text-align: center;
+            transition: border-color .15s ease, background .15s ease;
+        }
+        .riderWrap .proofDrop:hover { border-color: var(--foreground); }
+        .riderWrap .proofDrop:focus-within { outline: 2px solid var(--ring); outline-offset: 2px; }
+        .riderWrap .proofDrop svg {
+            width: 26px;
+            height: 26px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.6;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            color: var(--muted-foreground);
+        }
+        .riderWrap .proofDrop strong { font-size: 14px; color: var(--foreground); }
+        .riderWrap .proofDrop span { font-size: 12px; color: var(--muted-foreground); }
+        .riderWrap .proofDrop .proofInput {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            margin: -1px;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0 0 0 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        .riderWrap button[type="submit"] { width: 100%; margin-top: 18px; padding: 12px; }
+        #proofPreview { display: none; width: 100%; max-height: 320px; object-fit: contain;
+                        margin-top: 10px; border: 1px solid var(--border); border-radius: 8px; }
+        #msg, #locMsg { display: none; margin-top: 14px; padding: 10px 12px; border-radius: 8px; }
+        #msg.ok, #locMsg.ok  { display: block; background: var(--secondary); color: var(--green-ink); border: 1px solid var(--border); }
+        #msg.err, #locMsg.err { display: block; background: var(--destructive-soft); color: var(--destructive); }
+        #updateNowBtn, #placeBtn, #locSubmitBtn { width: 100%; margin-top: 14px; padding: 12px; }
+        .riderWrap input[type="text"],
+        .riderWrap input[type="number"] { width: 100%; box-sizing: border-box; padding: 10px; font: inherit; }
+        .riderWrap .switchRow { display: flex; align-items: center; gap: 10px; margin: 14px 0 4px; cursor: pointer; }
+        .riderWrap .switchRow input { width: 18px; height: 18px; padding: 0; margin: 0; }
+                #placePreviewMap {
+            height: 180px;
+            margin-top: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--secondary);
+            pointer-events: none;
+        }
+        #placePreviewMap[hidden] { display: none; }
+            @media (max-width: 650px) {
+            #placePreviewMap { height: 160px; }
+        }
+        /* Mas madilim na pin para sa rider preview */
+        .placePreviewPin {
+            background: #111827;
+            filter: drop-shadow(0 0 1.5px #fff) drop-shadow(0 2px 3px rgba(0,0,0,.45));
+        }
+        #details { display: none; }
+        .hint { color: var(--muted); font-size: 0.9rem; margin: 4px 0 0; }
+
+.riderPage {
+    background: var(--background);
+}
+
+.riderPage .headerSec {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    width: 100%;
+}
+
+.riderPage .riderWrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 20px 16px 40px;
+}
+
+@media (max-width: 650px) {
+    .riderPage .riderWrap {
+        padding: 12px 10px 32px;
+    }
+}
+/* ---------- LIVE MAP: riders panel laging kita, list collapsible ---------- */
+.liveMapPage .liveList {
+    bottom: auto;
+    max-height: calc(100% - 88px);
+    transform: none;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.liveMapPage .liveListHead {
+    margin-bottom: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+}
+
+.liveMapPage .liveListTop {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.liveMapPage #ridersListToggle {
+    align-self: center;
+    flex: 0 0 auto;
+    width: 28px;
+    height: 22px;
+    margin-top: 6px;
+    padding: 2px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+}
+
+.liveMapPage #ridersListToggle:hover {
+    opacity: 0.7;
+}
+
+.liveMapPage #ridersListToggle svg {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.15s ease;
+}
+
+.liveMapPage #ridersListToggle[aria-expanded="true"] svg {
+    transform: rotate(180deg);
+}
+
+.liveMapPage #list {
+    display: none;
+}
+
+.liveMapPage.listOpen #list {
+    display: block;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+@media (max-width: 850px) {
+    .liveMapPage .liveList {
+        max-height: calc(100% - 16px);
+    }
+
+    .liveMapPage #ridersListToggle {
+        width: 44px;
+        height: 44px;
+    }
+}
+
+/* =====================================================
+   ADAPT: plain dataTable -> cards sa mobile
+   Opt-in lang sa [data-mobile-cards] para hindi maapektuhan
+   ang delivery/report tables na may sariling card layout.
+===================================================== */
+@media screen and (max-width: 650px) {
+    .tableWrapper:has([data-mobile-cards]) {
+        overflow-x: visible;
+    }
+
+    [data-mobile-cards] thead {
+        display: none;
+    }
+
+    [data-mobile-cards],
+    [data-mobile-cards] tbody {
+        display: block;
+        width: 100%;
+    }
+
+    [data-mobile-cards] tr {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 8px;
+        padding: 14px;
+        margin-bottom: 10px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: var(--card);
+    }
+
+    [data-mobile-cards] td {
+        display: grid;
+        grid-template-columns: 92px minmax(0, 1fr);
+        align-items: start;
+        gap: 10px;
+        min-width: 0;
+        padding: 0;
+        border: 0;
+        font-size: 13px;
+        text-align: left;
+        overflow-wrap: anywhere;
+    }
+
+    [data-mobile-cards] td::before {
+        content: attr(data-label);
+        color: var(--muted-foreground);
+        font-size: 12px;
+        line-height: 1.5;
+        word-break: normal;
+    }
+
+    [data-mobile-cards] td[data-card-title] {
+        display: block;
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1.3;
+    }
+
+    [data-mobile-cards] td[data-card-title]::before {
+        content: none;
+    }
+
+    [data-mobile-cards] td select {
+        width: 100%;
+        max-width: 240px;
+        padding: 8px 10px;
+    }
+
+    [data-mobile-cards] td[data-label="Action"] {
+        display: block;
+        margin-top: 4px;
+        padding-top: 10px;
+        border-top: 1px solid var(--border-soft);
+    }
+
+    [data-mobile-cards] td[data-label="Action"]::before {
+        content: none;
+    }
+
+    [data-mobile-cards] td[data-label="Action"] .actionBtns {
+        justify-content: flex-end;
+    }
+
+    [data-mobile-cards] td[colspan] {
+        display: block;
+        padding: 10px 0;
+        text-align: center;
+        color: var(--muted-foreground);
+    }
+
+    [data-mobile-cards] td[colspan]::before {
+        content: none;
+    }
+
+    [data-mobile-cards] tbody tr:hover {
+        background: var(--card);
+    }
+}
+
+/* =====================================================
+   ADAPT: 44px touch targets
+===================================================== */
+@media (max-width: 850px) {
+    input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+    textarea {
+        min-height: 44px;
+    }
+
+    .photoViewerClose {
+        width: 44px;
+        height: 44px;
+    }
+
+    .optionSec button {
+        width: 44px;
+        height: 44px;
+    }
+}
+
+/* Pinipigilan ang iOS zoom sa focus: 16px minimum sa text fields */
+@media (max-width: 650px) {
+    :root input:not([type="checkbox"]):not([type="radio"]),
+    :root textarea {
+        font-size: 16px;
+    }
+}
+
+/* =====================================================
+   HARDEN: screen-reader content at mahabang text
+===================================================== */
+.srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Pinipigilan ang mahabang email/address na magpalawak ng table */
+.dataTable td {
+    overflow-wrap: anywhere;
+    font-variant-numeric: tabular-nums;
+}
+    

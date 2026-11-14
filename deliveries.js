@@ -1,0 +1,543 @@
+// =========================
+//   DELIVERIES PAGE SCRIPT
+// =========================
+
+const DEL_API = "api/deliveries.php";
+const CUS_API = "api/customers.php";
+const DRV_API = "api/drivers.php";
+
+const STATUS_LIST = ["Pending", "Processing", "Out for Delivery", "Delivered", "Cancelled"];
+const ACTIVE_STATUSES = ["Pending", "Processing", "Out for Delivery"];
+const BADGE = {
+    "Pending": "pendingBadge",
+    "Processing": "processingBadge",
+    "Out for Delivery": "outBadge",
+    "Delivered": "deliveredBadge",
+    "Cancelled": "cancelledBadge",
+};
+
+const delBody = document.querySelector(".dataTable tbody");
+const delModal = document.getElementById("deliveryModal");
+const delForm = document.getElementById("deliveryForm");
+const statusModal = document.getElementById("statusModal");
+const statusForm = document.getElementById("statusForm");
+
+// Toolbar filters
+const fSearch = document.getElementById("searchDelivery");
+const fStatus = document.querySelector('[name="delStatus"]');
+const fDriver = document.querySelector('[name="driverName"]');
+const fDate = document.querySelector('[name="filterDate"]');
+
+let deliveries = [];
+let customers = [];
+let drivers = [];
+let editingDelId = null;
+let statusDelId = null;
+const expandedRows = new Set();   // mga delivery na naka-expand ang listahan ng customer
+
+// ---------- HELPERS ----------
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+const fmtDate = (d) => {
+    if (!d) return "";
+    const [y, m, day] = d.split("-").map(Number);
+    return new Date(y, m - 1, day).toLocaleDateString("en-US",
+        { month: "short", day: "numeric", year: "numeric" });
+};
+
+// Overdue: active pa ang delivery pero nakalipas na ang delivery date
+const todayKey = () => {
+    const t = new Date();
+    return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}-${String(t.getDate()).padStart(2, "0")}`;
+};
+const isOverdue = (d) =>
+    ACTIVE_STATUSES.includes(d.status) && !!d.del_date && d.del_date < todayKey();
+
+// Punuin ang <select> ng mga pangalan; panatilihin ang current kahit wala na sa listahan
+function fillSelect(select, names, placeholder, current = "") {
+    const list = [...names];
+    if (current && !list.includes(current)) list.unshift(current);
+    select.innerHTML =
+        `<option value="">${placeholder}</option>` +
+        list.map((n) => `<option value="${esc(n)}" ${n === current ? "selected" : ""}>${esc(n)}</option>`).join("");
+}
+
+const fmtDateTime = (s) => {
+    if (!s) return "-";
+    const d = new Date(String(s).replace(" ", "T"));
+    return isNaN(d) ? s : d.toLocaleString("en-PH", { dateStyle: "medium", timeStyle: "short" });
+};
+
+// ---------- ICONS ----------
+const ICONS = {
+    view: `<svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>`,
+    edit: `<svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>`,
+        status: `<svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>`,
+    history: `<svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 7v5l3 2"/></svg>`,
+    delete: `<svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg>`,
+};
+
+const actionButtons = () => `
+    <div class="actionBtns">
+        <button type="button" class="iconBtn" data-action="view" title="View" aria-label="View">${ICONS.view}</button>
+        <button type="button" class="iconBtn" data-action="edit" title="Edit" aria-label="Edit">${ICONS.edit}</button>
+        <button type="button" class="iconBtn" data-action="status" title="Update Status" aria-label="Update Status">${ICONS.status}</button>
+        <button type="button" class="iconBtn" data-action="history" title="History" aria-label="History">${ICONS.history}</button>
+        <button type="button" class="iconBtn danger" data-action="delete" title="Delete" aria-label="Delete">${ICONS.delete}</button>
+    </div>`;
+
+// ---------- LOAD ----------
+// Hiwa-hiwalay ang pagkuha para hindi masira ang isa kapag pumalya ang isa pa
+async function fetchList(url) {
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+        if (!Array.isArray(data)) throw new Error(data.error || "Invalid response");
+        return data;
+    } catch (err) {
+        console.error("Failed to load " + url, err);
+        return null;
+    }
+}
+
+async function refreshLists() {
+    const [c, r] = await Promise.all([fetchList(CUS_API), fetchList(DRV_API)]);
+    if (c) customers = c;
+    if (r) drivers = r;
+    return { customersOk: !!c, driversOk: !!r };
+}
+
+async function loadAll() {
+    const [d] = await Promise.all([fetchList(DEL_API), refreshLists()]);
+
+    if (!d) {
+        delBody.innerHTML = `<tr><td colspan="6">Could not load deliveries. Please refresh the page.</td></tr>`;
+    } else {
+        deliveries = d;
+    }
+
+    // Driver filter sa toolbar galing sa Drivers table
+    fillSelect(fDriver, drivers.map((x) => x.name), "All Driver", fDriver.value);
+
+    if (d) renderDeliveries();
+}
+
+async function reloadDeliveries() {
+    const res = await fetch(DEL_API);
+    deliveries = await res.json();
+    renderDeliveries();
+}
+
+// ---------- RENDER + FILTER ----------
+// Isang customer bawat linya: ang pangalawa at susunod ay nasa ilalim ng una
+function customerCell(d) {
+    const names = String(d.customer_list || "").split("||").map((n) => n.trim()).filter(Boolean);
+    const list = names.length ? names : [d.customer_name];
+    if (list.length === 1) return `<div class="custLine"><span class="custName">${esc(list[0])}</span></div>`;
+
+    // Marami: ① unang customer + badge "+N more"; kapag bukas, "Show less" sa ilalim
+    const extra = list.slice(1);
+    const open = expandedRows.has(String(d.id));
+    return `
+        <div class="custLine">
+            <span class="custName">${esc(list[0])}</span>
+            ${open ? "" : `<button type="button" class="moreBadge" data-more aria-expanded="false" aria-controls="more-${d.id}">+${extra.length} more \u25BE</button>`}
+        </div>
+        <div class="moreList" id="more-${d.id}" ${open ? "" : "hidden"}>
+            ${extra.map((n) => `<div class="custLine"><span class="custName">${esc(n)}</span></div>`).join("")}
+        </div>
+        ${open ? `<button type="button" class="moreBadge moreLess" data-more aria-expanded="true" aria-controls="more-${d.id}">Show less \u25B4</button>` : ""}`;
+}
+
+
+
+
+// I-click ang badge: ipakita / itago ang iba pang customer sa mismong cell
+delBody.addEventListener("click", (e) => {
+    const badge = e.target.closest("[data-more]");
+    if (!badge) return;
+    const tr = badge.closest("tr");
+    const id = tr.dataset.id;
+    const d = deliveries.find((x) => String(x.id) === id);
+    if (!d) return;
+    if (expandedRows.has(id)) expandedRows.delete(id); else expandedRows.add(id);
+    tr.children[1].innerHTML = customerCell(d);   // ika-2 column = Customer
+});
+
+function renderDeliveries() {    const q = fSearch.value.trim().toLowerCase();
+    const status = fStatus.value;
+    const driver = fDriver.value;
+    const date = fDate.value;
+
+    const list = deliveries.filter((d) =>
+        (!q || `${d.del_number} ${d.customer_list ?? d.customer_name} ${d.driver_name ?? ""} ${d.item_desc ?? ""}`.toLowerCase().includes(q)) &&
+        (!status || d.status === status) &&
+        (!driver || d.driver_name === driver) &&
+        (!date || d.del_date === date)
+    );
+
+    if (!list.length) {
+        delBody.innerHTML = `<tr><td colspan="6">No deliveries found.</td></tr>`;
+        return;
+    }
+
+    delBody.innerHTML = list.map((d) => `
+    <tr data-id="${d.id}"${String(d.customer_list || "").includes("||") ? ' class="multiRow"' : ""}>
+            <td>${esc(d.del_number)}</td>
+            <td>${customerCell(d)}</td>
+            <td>${esc(d.driver_name)}</td>
+            <td>${esc(fmtDate(d.del_date))}${isOverdue(d) ? ' <span class="statusBadge lateBadge">Overdue</span>' : ""}</td>
+            <td><span class="statusBadge ${BADGE[d.status] ?? ""}">${esc(d.status) || "No status"}</span></td>
+            <td>${actionButtons()}</td>
+        </tr>`).join("");
+}
+
+[fSearch, fStatus, fDriver, fDate].forEach((el) => {
+    el.addEventListener("input", renderDeliveries);
+    el.addEventListener("change", renderDeliveries);
+});
+
+// ---------- ADD / EDIT MODAL ----------
+function nextDeliveryNumber() {
+    const nums = deliveries
+        .map((d) => parseInt(String(d.del_number).replace(/\D/g, ""), 10))
+        .filter((n) => !isNaN(n));
+    const next = (nums.length ? Math.max(...nums) : 0) + 1;
+    return "DEL-" + String(next).padStart(3, "0");
+}
+
+async function prepareForm(del = null) {
+    // Naka-lock ang Delivery Number at Address kapag nagdadagdag (automatic ang laman)
+    delForm.elements.delNumber.readOnly = !del;
+    delForm.elements.delAddress.readOnly = !del;
+    const ok = await refreshLists();
+    editingDelId = del ? del.id : null;
+    document.getElementById("delModalTitle").textContent = del ? "Edit Delivery" : "Add Delivery";
+    document.getElementById("delSubmitBtn").textContent = del ? "Save Changes" : "Add Delivery";
+    delForm.reset();
+    extraStops.innerHTML = "";
+    extraStopsBox.style.display = del ? "none" : "";
+
+    fillSelect(delForm.elements.customerName, customers.map((c) => c.name),
+        ok.customersOk ? (customers.length ? "Select customer" : "No customers yet - add one in Customers page") : "Failed to load customers",
+        del?.customer_name ?? "");
+    fillSelect(delForm.elements.driverAssign, drivers.map((r) => r.name),
+    ok.driversOk ? (drivers.length ? "Select driver" : "No drivers yet - create a Driver account in Settings") : "Failed to load drivers",
+    del?.driver_name ?? "");
+
+// Isang delivery lang bawat driver: naka-disable ang driver na may active delivery na
+const busy = new Set(
+    deliveries
+        .filter((d) => ACTIVE_STATUSES.includes(d.status) && d.driver_name && (!del || d.id !== del.id))
+        .map((d) => d.driver_name)
+);
+[...delForm.elements.driverAssign.options].forEach((o) => {
+    if (o.value && busy.has(o.value) && o.value !== (del?.driver_name ?? "")) {
+        o.disabled = true;
+        o.textContent = `${o.value} (has active delivery)`;
+    }
+});
+
+    if (del) {
+        delForm.elements.delNumber.value = del.del_number ?? "";
+        delForm.elements.delAddress.value = del.address ?? "";
+        delForm.elements.contactNumber.value = del.contact ?? "";
+        delForm.elements.delDate.value = del.del_date ?? "";
+        delForm.elements.vehicle.value = del.vehicle ?? "";
+        delForm.elements.itemDesc.value = del.item_desc ?? "";
+        delForm.elements.quantity.value = del.quantity ?? "";
+        delForm.elements.remarks.value = del.remarks ?? "";
+    } else {
+        delForm.elements.delNumber.value = nextDeliveryNumber();
+    }
+}
+
+// Ang app.js ang nagbubukas ng modal sa "+ New Delivery"; ihahanda lang natin ang form
+document.getElementById("openAddDel").addEventListener("click", () => prepareForm());
+
+// Kapag pumili ng customer, awtomatikong ilagay ang address at contact
+delForm.elements.customerName.addEventListener("change", (e) => {
+    const c = customers.find((x) => x.name === e.target.value);
+    if (!c) return;
+    delForm.elements.delAddress.value = c.address ?? "";
+    delForm.elements.contactNumber.value = c.contact ?? "";
+});
+
+delForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const body = Object.fromEntries(new FormData(delForm));
+    body.extraCustomers = [...extraStops.querySelectorAll(".extraStopRow")].map((row) => ({
+        customerName: row.querySelector(".xsCustomer").value,
+        itemDesc: row.querySelector(".xsItem").value.trim(),
+        quantity: row.querySelector(".xsQty").value,
+    }));
+    // Walang Status dropdown: bagong delivery = Pending; edit = panatilihin ang dating status.
+    body.status = editingDelId
+        ? (deliveries.find((d) => d.id === editingDelId)?.status ?? "Pending")
+        : "Pending";
+    const url = editingDelId ? `${DEL_API}?id=${editingDelId}` : DEL_API;
+
+    const res = await fetch(url, {
+        method: editingDelId ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+    });
+    const out = await res.json();
+    if (!out.ok) return   alert(
+  "Error: " + out.error);
+
+    closeModal(); // galing sa app.js
+    editingDelId = null;
+    reloadDeliveries();
+});
+
+// ---------- STATUS MODAL ----------
+let statusLastFocused = null;
+
+function openStatusModal(del) {
+    statusLastFocused = document.activeElement;
+    statusDelId = del.id;
+    statusForm.elements.status.value = del.status;
+    statusModal.style.display = "flex";
+    statusForm.elements.status.focus();
+}
+
+function closeStatusModal() {
+    if (statusModal.style.display !== "flex") return;
+    statusModal.style.display = "none";
+    statusDelId = null;
+    if (statusLastFocused && typeof statusLastFocused.focus === "function") statusLastFocused.focus();
+    statusLastFocused = null;
+}
+
+document.getElementById("closeStatusModal").addEventListener("click", closeStatusModal);
+document.getElementById("cancelStatusModal").addEventListener("click", closeStatusModal);
+statusModal.addEventListener("click", (e) => { if (e.target === statusModal) closeStatusModal(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeStatusModal(); });
+
+statusForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const res = await fetch(`${DEL_API}?id=${statusDelId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: statusForm.elements.status.value }),
+    });
+    const out = await res.json();
+    if (!out.ok) return   alert(
+  "Error: " + out.error);
+    closeStatusModal();
+    reloadDeliveries();
+});
+
+// ---------- HISTORY ----------
+const historyModal = document.getElementById("historyModal");
+const historyList = document.getElementById("historyList");
+
+function closeHistory() {
+    if (historyModal.style.display !== "flex") return;
+    historyModal.style.display = "none";
+    if (historyLastFocused && typeof historyLastFocused.focus === "function") historyLastFocused.focus();
+    historyLastFocused = null;
+}
+
+let historyLastFocused = null;
+
+async function openHistory(del) {
+    historyLastFocused = document.activeElement;
+    document.getElementById("historyTitle").textContent = "History — " + del.del_number;
+    historyList.innerHTML = `<p class="historyEmpty">Loading...</p>`;
+    historyModal.style.display = "flex";
+    document.getElementById("closeHistoryModal").focus();
+
+    try {
+        const res = await fetch(`${DEL_API}?action=events&id=${del.id}`);
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || "Invalid response");
+
+        if (!data.events.length) {
+            historyList.innerHTML = `<p class="historyEmpty">No history yet. Changes will appear here.</p>`;
+            return;
+        }
+
+        historyList.innerHTML = data.events.map((e) => `
+            <div class="historyItem">
+                <span class="statusBadge ${BADGE[e.status] ?? ""}">${esc(e.status)}</span>
+                <div class="historyMeta">
+                    <b>${esc(e.username || "System")}</b>
+                    <span>${esc(fmtDateTime(e.created_at))}</span>
+                </div>
+                ${e.note ? `<p>${esc(e.note)}</p>` : ""}
+            </div>`).join("");
+    } catch (err) {
+        historyList.innerHTML = `<p class="historyEmpty">Failed to load: ${esc(err.message)}</p>`;
+    }
+}
+
+document.getElementById("closeHistoryModal")?.addEventListener("click", closeHistory);
+document.getElementById("closeHistoryBtn")?.addEventListener("click", closeHistory);
+historyModal?.addEventListener("click", (e) => { if (e.target === historyModal) closeHistory(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeHistory(); });
+
+// ---------- VIEW / EDIT / STATUS / DELETE ----------
+delBody.addEventListener("click", async (e) => {
+    const btn = e.target.closest(".iconBtn");
+    if (!btn) return;
+
+    const id = btn.closest("tr").dataset.id;
+    const del = deliveries.find((x) => String(x.id) === id);
+    if (!del) return;
+
+    const action = btn.dataset.action;
+
+    if (action === "view") {
+        // I-click ulit ang View habang bukas = isara
+        if (viewModal.style.display === "flex" && viewingId === del.id) closeViewModal();
+        else openViewModal(del);
+    } else if (action === "edit") {
+        await prepareForm(del);
+        openModal(); // galing sa app.js
+    } else if (action === "status") {
+        openStatusModal(del);
+    } else if (action === "history") {
+        openHistory(del);
+    } else if (action === "delete") {
+        if (await confirmBox(`Delete delivery ${del.del_number}?`)) {
+            await fetch(`${DEL_API}?id=${id}`, { method: "DELETE" });
+            reloadDeliveries();
+        }
+    }
+});
+
+loadAll();
+
+// ---------- VIEW: kumpletong detalye ng delivery ----------
+const viewModal = document.getElementById("viewModal");
+const viewBody = document.getElementById("viewBody");
+let viewingId = null;
+
+let viewLastFocused = null;
+
+function closeViewModal() {
+    if (viewModal.style.display !== "flex") return;
+    viewModal.style.display = "none";
+    viewingId = null;
+    if (viewLastFocused && typeof viewLastFocused.focus === "function") viewLastFocused.focus();
+    viewLastFocused = null;
+}
+
+const viewRow = (label, valueHtml) =>
+    `<div class="viewRow"><dt>${esc(label)}</dt><dd>${valueHtml}</dd></div>`;
+
+const statusBadgeHtml = (s) => `<span class="statusBadge ${BADGE[s] ?? ""}">${esc(s) || "No status"}</span>`;
+
+function viewStopsHtml(stops) {
+    return `<h3 class="viewSection">${stops.length > 1 ? "Customers (" + stops.length + ")" : "Customer"}</h3>` +
+        stops.map((s) => `
+            <div class="viewStop">
+                <div class="viewStopHead"><b>${esc(s.customer_name)}</b>${statusBadgeHtml(s.status)}</div>
+                <dl class="viewList">
+                    ${viewRow("Address", esc(s.address || "-"))}
+                    ${viewRow("Contact", esc(s.contact || "-"))}
+                    ${viewRow("Item", esc(s.item_desc || "-") + " (Qty: " + esc(s.quantity ?? 1) + ")")}
+                    ${s.delivered_at ? viewRow("Delivered at", esc(fmtDateTime(s.delivered_at))) : ""}
+                    ${s.rider_notes ? viewRow("Rider notes", esc(s.rider_notes)) : ""}
+                </dl>
+            </div>`).join("");
+}
+
+function renderView(del, stops) {
+    document.getElementById("viewTitle").textContent = del.del_number;
+    viewBody.innerHTML = `
+        <dl class="viewList">
+            ${viewRow("Status", statusBadgeHtml(del.status) + (isOverdue(del) ? ' <span class="statusBadge lateBadge">Overdue</span>' : ""))}
+            ${viewRow("Date", esc(fmtDate(del.del_date) || "-"))}
+            ${viewRow("Driver", esc(del.driver_name || "-"))}
+            ${viewRow("Vehicle", esc(del.vehicle || "-"))}
+            ${viewRow("Remarks", esc(del.remarks || "-"))}
+            ${del.delivered_at ? viewRow("Delivered at", esc(fmtDateTime(del.delivered_at))) : ""}
+        </dl>
+        ${viewStopsHtml(stops)}`;
+}
+
+async function openViewModal(del) {
+    viewingId = del.id;
+    viewLastFocused = document.activeElement;
+
+    // Agad na lumalabas ang laman gamit ang nasa row; kukunin pagkatapos ang lahat ng customer
+    renderView(del, [{
+        customer_name: del.customer_name, address: del.address, contact: del.contact,
+        item_desc: del.item_desc, quantity: del.quantity, status: del.status,
+        delivered_at: del.delivered_at, rider_notes: del.rider_notes,
+    }]);
+    viewModal.style.display = "flex";
+    viewModal.querySelector(".modalBox").scrollTop = 0;
+    document.getElementById("closeViewModal").focus();
+
+    try {
+        const res = await fetch(`${DEL_API}?action=stops&id=${del.id}`);
+        const out = await res.json();
+        if (viewingId !== del.id) return;          // isinara na, o ibang delivery na ang binuksan
+        if (out.ok && out.stops.length) renderView(del, out.stops);
+    } catch (_) { /* okay lang: naka-display na ang pangunahing detalye */ }
+}
+
+document.getElementById("closeViewModal").addEventListener("click", closeViewModal);
+viewModal.addEventListener("click", (e) => { if (e.target === viewModal) closeViewModal(); });   // click sa labas
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && viewModal.style.display === "flex") closeViewModal(); });
+
+// Auto-refresh tuwing 30s para makita agad ang update ng rider.
+// Naka-pause habang bukas ang modal para hindi mawala ang ginagawa.
+setInterval(() => {
+    if (document.hidden) return;
+    if (delModal.style.display === "flex" || statusModal.style.display === "flex" || historyModal?.style.display === "flex" || viewModal.style.display === "flex") return;    reloadDeliveries().catch(() => {});
+}, 30000);
+// ---------- DAGDAG NA CUSTOMER (isang batch) ----------
+const MAX_STOPS = 5;
+const extraStopsBox = document.getElementById("extraStopsBox");
+const extraStops = document.getElementById("extraStops");
+
+function refreshStopChoices() {
+    extraStops.querySelectorAll(".xsTitle").forEach((t, i) => (t.textContent = "Customer " + (i + 2)));
+    const selects = [...extraStops.querySelectorAll(".xsCustomer")];
+    const chosen = [delForm.elements.customerName.value, ...selects.map((s) => s.value)].filter(Boolean);
+    selects.forEach((sel) => {
+        [...sel.options].forEach((o) => {
+            o.disabled = !!o.value && o.value !== sel.value && chosen.includes(o.value);
+        });
+    });
+}
+
+function addStopRow() {
+    if (extraStops.children.length >= MAX_STOPS - 1) {
+        alert("A delivery can have at most " + MAX_STOPS + " customers.");
+        return;
+    }
+    const row = document.createElement("div");
+    row.className = "extraStopRow";
+    row.style.cssText = "display:grid;gap:8px;margin:0;padding:12px 0 0;border-top:1px solid var(--border-soft);";
+    row.innerHTML = `
+    <b class="xsTitle"></b>
+    <select class="xsCustomer" required></select>
+    <small class="xsAddress"></small>
+        <input type="text" class="xsItem" maxlength="120" placeholder="Item description" required>
+        <input type="number" class="xsQty" min="1" max="999" placeholder="Quantity" required>
+        <button type="button" class="btnOutline xsRemove">Remove</button>`;
+    fillSelect(row.querySelector(".xsCustomer"), customers.map((c) => c.name), "Select customer");
+    extraStops.appendChild(row);
+    refreshStopChoices();
+}
+
+document.getElementById("addStopBtn").addEventListener("click", addStopRow);
+extraStops.addEventListener("change", (e) => {
+    if (!e.target.classList.contains("xsCustomer")) return;
+    const c = customers.find((x) => x.name === e.target.value);
+    e.target.closest(".extraStopRow").querySelector(".xsAddress").textContent = c ? (c.address ?? "") : "";
+    refreshStopChoices();
+});
+extraStops.addEventListener("click", (e) => {
+    if (!e.target.classList.contains("xsRemove")) return;
+    e.target.closest(".extraStopRow").remove();
+    refreshStopChoices();
+});
+delForm.elements.customerName.addEventListener("change", refreshStopChoices);

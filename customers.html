@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="theme.js?v=2"></script>
+      
+    <title>Customers | Delivery Project</title>
+</head>
+<body class="appPage">
+
+    <a class="skipLink" href="#pageContent">Skip to content</a>
+
+    <main class="mainLayout">
+
+        <aside class="optionSec">
+            <div class="sidebarTitle">MENU</div>
+
+            <button id="dashboardButton" class="">Dashboard</button>
+            <button id="deliveriesButton" class="">Deliveries</button>
+            <button id="driversButton" class="">Drivers</button>
+            <button id="mapButton">Live Map</button>
+            <button id="customersButton" class="active" aria-current="page">Customers</button>
+            <button id="employeeButton" class="">Employees</button>
+            <button id="reportsButton" class="">Reports</button>
+            <button id="riderButton">Submit Delivery</button>
+            <button id="settingsButton" class="">Settings</button>
+
+            <div class="sidebarBottom">
+                <button id="sidebarLogoutButton">Logout</button>
+            </div>
+        </aside>
+
+        <section class="dashboardSec listPage" id="pageContent" tabindex="-1">
+
+            <div class="dashboardHead">
+                <div class="pageHead">
+                    <h1>Customers</h1>
+                    <p>Manage company customers and destinations</p>
+                </div>
+                <div class="pageActions">
+                    <div class="accountWrap">
+                        <button id="liveAccountButton" class="accountBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="liveAccountMenu" aria-label="Account menu">
+                            <img src="assets/company-logo.svg" alt="">
+                        </button>
+                        <div id="liveAccountMenu" class="accountMenu" role="menu" hidden>
+                            <button id="liveProfileButton" type="button" role="menuitem">Profile</button>
+                            <button id="liveLogoutButton" type="button" role="menuitem">Logout</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="toolbar">
+                    <button class="btnPrimary" type="button" id="openAddCus">+ Add Customer</button>
+                    <input type="text" id="customerSearch" placeholder="Search customer..." aria-label="Search customers" maxlength="60">
+                </div>
+            </div>
+
+            <div class="panel tablePanel">
+                <h2>Customers Overview</h2>
+                <p>List of all registered customers</p>
+
+                <div class="tableWrapper">
+                    <table class="dataTable" data-mobile-cards>
+                        <thead>
+                            <tr>
+                                <th scope="col">Customer</th>
+                                <th scope="col">Contact</th>
+                                <th scope="col">Address</th>
+                                <th scope="col">Deliveries</th>
+                                <th scope="col">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Add / Edit Customer Modal -->
+            <div class="modal" id="customerModal" role="dialog" aria-modal="true" aria-labelledby="cusModalTitle">
+                <div class="modalBox">
+                    <div class="modalHeader">
+                        <h2 id="cusModalTitle">Add Customer</h2>
+                        <button class="modalClose" id="closeCusModal" type="button" aria-label="Close">&times;</button>
+                    </div>
+
+                                        <form id="customerForm">
+                        <label for="cusName">Customer Name</label>
+                        <input type="text" id="cusName" name="name" maxlength="80" required>
+
+                        <label for="cusContact">Contact</label>
+                        <input type="text" id="cusContact" name="contact" placeholder="09XXXXXXXXX" maxlength="20" required>
+
+                        <label for="cusAddressSearch">Find address on map</label>
+                        <div class="addressSearchWrap">
+                            <input type="text" id="cusAddressSearch" placeholder="Type a street, building, or city..." autocomplete="off" maxlength="60">
+                            <div id="cusSuggestions" class="addressSuggestions" hidden></div>
+                        </div>
+
+                        <label for="cusStreet">Street / Building *</label>
+                        <input type="text" id="cusStreet" name="street" placeholder="e.g. 123 Shaw Blvd, Unit 4B" autocomplete="off" maxlength="100" required>
+
+                        <label for="cusCity">Town / City *</label>
+                        <input type="text" id="cusCity" name="city" placeholder="e.g. Pasig City" autocomplete="off" maxlength="60" required>
+
+                        <label for="cusProvince">Province *</label>
+                        <input type="text" id="cusProvince" name="province" placeholder="e.g. Metro Manila" autocomplete="off" maxlength="60" required>
+
+                        <div class="addressMapHead">
+                        <span class="addressMapTitle"><span class="pinLabelIcon" aria-hidden="true"></span>Pin location</span>
+                        <small>Search above or drag the pin to the exact spot.</small>
+                        </div>
+                        <div id="cusMap" class="customerMap" aria-label="Customer location map"></div>
+                        <input type="hidden" name="lat" id="cusLat">
+                        <input type="hidden" name="lng" id="cusLng">
+
+                        <p id="cusFormError" class="formError" role="alert" hidden></p>
+
+                        <div class="modalActions">
+                            <button type="submit" class="btnPrimary">Save</button>
+                            <button type="button" class="btnDanger" id="cancelCusModal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+</div>            
+            <!-- View Customer Modal -->
+            <div class="modal" id="cusViewModal" role="dialog" aria-modal="true" aria-labelledby="cusViewTitle">
+                <div class="modalBox viewBox">
+                    <div class="modalHeader">
+                        <h2 id="cusViewTitle">Customer</h2>
+                        <button class="modalClose" id="closeCusView" type="button" aria-label="Close">&times;</button>
+                    </div>
+                    <div id="cusViewBody"></div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="app.js"></script>
+    <script src="customers.js"></script></body>
+</html>

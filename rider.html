@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="theme.js?v=2"></script>
+      
+    <title>Submit Delivery | Delivery Project</title>
+</head>
+<body class="riderPage">
+
+    <a class="skipLink" href="#pageContent">Skip to content</a>
+
+    <header class="headerSec">
+        <h2 aria-hidden="true">DELIVERY PROJECT</h2>
+        <div class="headerActions">
+            <button type="button" id="backBtn" style="display:none;" aria-label="Go back" title="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></button>
+            <span id="whoami">Rider Report</span>
+            <button type="button" id="logoutBtn">Logout</button>
+        </div>
+    </header>
+
+    <main class="riderWrap" id="pageContent" tabindex="-1">
+
+        <div class="panel">
+            <h1>Report a Delivery</h1>
+            <p>Select your name and the delivery you completed, then upload the proof of delivery photo.</p>
+
+            <label for="riderSelect">Your Name</label>
+            <select id="riderSelect"><option value="">Loading...</option></select>
+
+            <label for="deliverySelect">Delivery ID</label>
+            <select id="deliverySelect" disabled><option value="">Select your name first</option></select>
+            <p class="hint" id="deliveryHint"></p>
+
+            <div id="stopWrap" style="display:none;">
+                <label for="stopSelect">Customer</label>
+                <select id="stopSelect"><option value="">Select customer</option></select>
+                <p class="hint" id="stopHint"></p>
+            </div>
+        </div>
+
+        <div class="panel" id="details">
+            <h2>Delivery Details</h2>
+            <div class="profileRow"><span>Delivery ID</span><strong id="dID"></strong></div>
+            <div class="profileRow"><span>Customer</span><strong id="dCustomer"></strong></div>
+            <div class="profileRow"><span>Address</span><strong id="dAddress"></strong></div>
+            <div class="profileRow"><span>Contact</span><strong id="dContact"></strong></div>
+            <div class="profileRow"><span>Date</span><strong id="dDate"></strong></div>
+            <div class="profileRow"><span>Vehicle</span><strong id="dVehicle"></strong></div>
+            <div class="profileRow"><span>Item</span><strong id="dItem"></strong></div>
+            <div class="profileRow"><span>Quantity</span><strong id="dQty"></strong></div>
+            <div class="profileRow"><span>Status</span><strong id="dStatus"></strong></div>
+            <div class="profileRow"><span>Remarks</span><strong id="dRemarks"></strong></div>
+        </div>
+
+        <section class="panel" id="locationPanel">
+            <h2>My Location</h2>
+            <p>Makikita ng admin ang location mo sa Live Map habang may active delivery ka.</p>
+
+            <label class="switchRow">
+                <input type="checkbox" id="autoShare" checked>
+                <span>Share my location automatically</span>
+            </label>
+            <p class="hint" id="lastSent">Not sent yet.</p>
+
+            <button type="button" class="btnPrimary" id="updateNowBtn">Update my location (GPS)</button>
+
+            <form id="placeForm">
+                <label for="placeInput">GPS not working? Type the place name</label>
+                <div class="addressSearchWrap">
+                    <input type="text" id="placeInput" placeholder="e.g. Pasig Palengke, Pasig" autocomplete="off" maxlength="60">
+                    <div id="placeSuggestions" class="addressSuggestions" hidden></div>
+                </div>
+                <div id="placePreviewMap" hidden aria-label="Preview of the selected address"></div>
+                <p class="hint">Pumili ng suggestion o i-type ang buong lugar. Makikita sa maliit na mapa ang lokasyon bago i-save.</p>
+                <button type="submit" class="btnOutline" id="placeBtn">Search &amp; save this place</button>
+            </form>
+
+            <form id="coordForm" hidden>
+                <label for="latInput">Latitude</label>
+                <input type="number" id="latInput" step="any" placeholder="e.g. 14.5995" required>
+
+                <label for="lngInput">Longitude</label>
+                <input type="number" id="lngInput" step="any" placeholder="e.g. 120.9842" required>
+                <p class="hint">Tip: buksan ang Google Maps, i-long-press ang pin mo, at kopyahin ang dalawang numero.</p>
+
+                <button type="submit" class="btnPrimary" id="locSubmitBtn">Save Location</button>
+            </form>
+
+            <div id="locMsg" role="status"></div>
+        </section>
+
+        <form class="panel" id="reportForm">
+            <h2>Proof of Delivery</h2>
+
+            <label class="proofDrop">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4Z"/><circle cx="12" cy="13" r="3.5"/></svg>
+                <strong>Take or choose a photo</strong>
+                <span>Camera or gallery · JPG or PNG</span>
+                <input type="file" id="proofInput" accept="image/*" capture="environment" class="proofInput">
+            </label>
+            <p class="hint">Take a clear photo of the delivered item or the signed receipt.</p>
+            <img id="proofPreview" alt="Proof of delivery preview">
+
+            <label for="notes">Notes (optional)</label>
+            <textarea id="notes" rows="3" placeholder="e.g. Received by the guard" maxlength="500"></textarea>
+
+            <button type="submit" class="btnPrimary" id="submitBtn" disabled>Submit Report</button>
+            <div id="msg" role="status"></div>
+        </form>
+
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="rider.js"></script>
+</body>
+</html>

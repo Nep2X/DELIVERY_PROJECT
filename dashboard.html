@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+           <link rel="stylesheet" href="style.css"><script src="theme.js?v=2"></script>
+      
+    <title>Dashboard | Delivery Project</title>
+</head>
+<body class="appPage">
+
+    <a class="skipLink" href="#pageContent">Skip to content</a>
+
+    <main class="mainLayout">
+
+        <aside class="optionSec">
+            <div class="sidebarTitle">MENU</div>
+
+            <button id="dashboardButton" class="active" aria-current="page">Dashboard</button>
+            <button id="deliveriesButton">Deliveries</button>
+            <button id="driversButton">Drivers</button>
+            <button id="mapButton">Live Map</button>
+            <button id="customersButton">Customers</button>
+            <button id="employeeButton">Employees</button>
+            <button id="reportsButton">Reports</button>
+            <button id="riderButton">Submit Delivery</button>
+            <button id="settingsButton">Settings</button>
+
+            <div class="sidebarBottom">
+                <button id="sidebarLogoutButton">Logout</button>
+            </div>
+        </aside>
+
+        <section class="dashboardSec dashPage" id="pageContent" tabindex="-1">
+
+            <div class="dashTopbar">
+                <div class="dashWelcome">
+                    <div class="dashMeta">
+                        <span id="dashDate">—</span>
+                        <span class="dashMetaDot"></span>
+                        <span id="dashUpdated">Loadingâ€¦</span>
+                    </div>
+                    <h1 id="dashGreeting">Welcome back</h1>
+                    <p>Here’s what’s happening with your deliveries today.</p>
+                </div>
+
+                <div class="dashActions">
+                    <button type="button" class="btnOutline" id="openMapBtn">Live Map</button>
+                    <button type="button" class="newDeliveryBtn" id="newDeliveryBtn">+ New Delivery</button>
+
+                    <div class="accountWrap">
+                        <button id="liveAccountButton" class="accountBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="liveAccountMenu" aria-label="Account menu">
+                            <img src="assets/company-logo.svg" alt="">
+                        </button>
+                        <div id="liveAccountMenu" class="accountMenu" role="menu" hidden>
+                            <button id="liveProfileButton" type="button" role="menuitem">Profile</button>
+                            <button id="liveLogoutButton" type="button" role="menuitem">Logout</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="kpiGrid">
+
+                <article class="kpiCard kpiTotal" style="--kpi-accent: var(--primary)">
+                    <div class="kpiTop">
+                        <span class="kpiIcon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M4 7.5 12 3l8 4.5-8 4.5-8-4.5Z"/><path d="M4 12l8 4.5 8-4.5"/><path d="M4 16.5 12 21l8-4.5"/></svg>
+                        </span>
+                        <span class="kpiLabel">Total deliveries</span>
+                    </div>
+                    <div class="kpiValue" id="kpiTotal">0</div>
+                    <div class="kpiFoot"><span id="kpiTotalFoot">All records</span></div>
+                </article>
+
+                <article class="kpiCard kpiActive" style="--kpi-accent: var(--blue)">
+                    <div class="kpiTop">
+                        <span class="kpiIcon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M2.5 7.5h11v8h-11z"/><path d="M13.5 10h3.8l3.2 3.1v2.4h-7z"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17.5" cy="17.5" r="1.8"/></svg>
+                        </span>
+                        <span class="kpiLabel">Active now</span>
+                    </div>
+                    <div class="kpiValue" id="kpiActive">0</div>
+                    <div class="kpiFoot"><span id="kpiActiveFoot">Pending, processing, and on the road</span></div>
+                </article>
+
+                <article class="kpiCard kpiRate" style="--kpi-accent: var(--green)">
+                    <div class="kpiTop">
+                        <span class="kpiIcon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="m8.5 12.2 2.4 2.4 4.8-5"/></svg>
+                        </span>
+                        <span class="kpiLabel">Success rate</span>
+                    </div>
+                    <div class="kpiValue" id="kpiRate">0%</div>
+                    <div class="kpiFoot"><span id="kpiRateFoot">No deliveries yet</span></div>
+                </article>
+
+                <article class="kpiCard kpiOverdue" style="--kpi-accent: var(--destructive)">
+                    <div class="kpiTop">
+                        <span class="kpiIcon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.8v4.7l3 1.8"/><path d="M12 17.1v.1"/></svg>
+                        </span>
+                        <span class="kpiLabel">Overdue</span>
+                    </div>
+                    <div class="kpiValue" id="kpiOverdue">0</div>
+                    <div class="kpiFoot"><span id="kpiOverdueFoot">All active deliveries on time</span></div>
+                </article>
+
+            </div>
+
+            <div class="dashGrid">
+
+                <section class="dashPanel activityPanel">
+                    <header class="dashPanelHead">
+                        <div>
+                            <h2>Delivery activity</h2>
+                            <p id="chartSub">Last 7 days</p>
+                        </div>
+                        <select id="periodSelect" aria-label="Chart period">
+                            <option value="7">Last 7 days</option>
+                            <option value="30">Last 30 days</option>
+                            <option value="year">This year</option>
+                        </select>
+                    </header>
+
+                    <div class="activityMeta">
+                        <strong id="chartTotal">0</strong>
+                        <span>deliveries in this period</span>
+                    </div>
+
+                    <div class="activityChart" aria-hidden="true">
+                        <div class="activityBars" id="chartBars"></div>
+                        <div class="activityDays" id="chartDays"></div>
+                    </div>
+                    <table class="srOnly" id="chartTable">
+                        <caption>Delivery activity</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">Day</th>
+                                <th scope="col">Deliveries</th>
+                            </tr>
+                        </thead>
+                        <tbody id="chartTableBody"></tbody>
+                    </table>
+                </section>
+
+                <section class="dashPanel breakdownPanel">
+                    <header class="dashPanelHead">
+                        <div>
+                            <h2>Status breakdown</h2>
+                            <p>Where every delivery stands</p>
+                        </div>
+                    </header>
+
+                    <div class="breakdownList" id="statusList"></div>
+                    <div class="breakdownFoot" id="driverFoot">—</div>
+                </section>
+
+            </div>
+
+            <section class="dashPanel recentPanel">
+                <header class="dashPanelHead">
+                    <div>
+                        <h2>Recent deliveries</h2>
+                        <p>Latest transactions in the system</p>
+                    </div>
+                    <button type="button" class="btnOutline" id="viewAllBtn">View all</button>
+                </header>
+
+                <div class="tableWrapper">
+                    <table class="recentDeliveryTable">
+                        <thead>
+                            <tr>
+                                <th scope="col">Delivery</th>
+                                <th scope="col">Customer</th>
+                                <th scope="col">Driver</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentRows"></tbody>
+                    </table>
+                </div>
+            </section>
+
+        </section>
+
+    </main>
+
+    <script src="app.js"></script>
+    <script src="dashboard.js"></script>    
+</body>
+</html>
