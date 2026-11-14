@@ -4,6 +4,7 @@ uploads/
 # Mga file ng editor / system
 .vscode/
 .idea/
+.superpowers/
 .opencode/
 .qodo/
 .DS_Store
