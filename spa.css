@@ -1,0 +1,792 @@
+/* =====================================================================
+   SPA SHELL
+   Reuses the tokens from style.css. No new color literals.
+===================================================================== */
+
+.spaBody {
+    min-height: 100vh;
+}
+
+.spaApp {
+    display: grid;
+    grid-template-columns: 248px minmax(0, 1fr);
+    min-height: 100vh;
+    background: var(--background);
+    color: var(--foreground);
+}
+
+.spaApp.spaSidebarCollapsed {
+    grid-template-columns: 72px minmax(0, 1fr);
+}
+
+/* ---------------- Sidebar ---------------- */
+
+.spaSidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    padding: 18px 14px 14px;
+    background: var(--card);
+    border-right: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.spaBrand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 2px 4px 16px;
+    min-width: 0;
+}
+
+.spaBrand img {
+    width: 32px;
+    height: 32px;
+    flex: none;
+    border-radius: 8px;
+}
+
+.spaBrandText {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.spaBrandText strong {
+    font-size: 14px;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+}
+
+.spaBrandText span {
+    font-size: 11px;
+    color: var(--muted-foreground);
+    line-height: 1.3;
+}
+
+.spaCollapseBtn {
+    margin-left: auto;
+    width: 30px;
+    height: 30px;
+    flex: none;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--card);
+    color: var(--muted-foreground);
+    cursor: pointer;
+}
+
+.spaCollapseBtn:hover {
+    background: var(--secondary);
+    color: var(--foreground);
+}
+
+.spaCollapseBtn:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+}
+
+.spaCollapseBtn svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform 0.18s ease;
+}
+
+.spaSidebarCollapsed .spaCollapseBtn svg {
+    transform: rotate(180deg);
+}
+
+.spaGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 0;
+}
+
+.spaGroup + .spaGroup {
+    border-top: 1px solid var(--border-soft);
+}
+
+.spaGroupHead {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+    padding: 2px 8px 6px;
+}
+
+.spaGroupBody {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.spaNavLink {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 7px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-soft);
+    font-size: 13.5px;
+    font-weight: 500;
+    line-height: 1.2;
+    text-decoration: none;
+    cursor: pointer;
+    min-width: 0;
+    min-height: 40px;
+}
+
+.spaNavLink:hover {
+    background: var(--secondary);
+    color: var(--foreground);
+}
+
+.spaNavLink:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+}
+
+.spaNavLink.is-active,
+.spaNavLink[aria-current="page"] {
+    background: var(--secondary);
+    border-color: var(--border);
+    color: var(--foreground);
+    font-weight: 650;
+}
+
+.spaNavIcon {
+    width: 16px;
+    height: 16px;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.85;
+}
+
+.spaNavLabel {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.spaNavLink.isOutbound .spaNavLabel::after {
+    content: " \2197";
+    color: var(--muted-foreground);
+    font-size: 11px;
+}
+
+.spaSidebarFoot {
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-soft);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.spaUserCard {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+}
+
+.spaAvatar {
+    width: 30px;
+    height: 30px;
+    flex: none;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.spaUserMeta {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.spaUserMeta strong {
+    font-size: 12.5px;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.spaUserMeta span {
+    font-size: 11px;
+    color: var(--muted-foreground);
+}
+
+.spaLogoutBtn {
+    width: 100%;
+    min-height: 38px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--card);
+    color: var(--text-soft);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.spaLogoutBtn:hover {
+    background: var(--secondary);
+    color: var(--foreground);
+}
+
+.spaLogoutBtn:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+}
+
+/* Collapsed sidebar: icons only */
+
+.spaSidebarCollapsed .spaBrandText,
+.spaSidebarCollapsed .spaGroupHead,
+.spaSidebarCollapsed .spaNavLabel,
+.spaSidebarCollapsed .spaUserMeta {
+    display: none;
+}
+
+.spaSidebarCollapsed .spaSidebar {
+    padding-inline: 12px;
+    align-items: stretch;
+}
+
+.spaSidebarCollapsed .spaNavLink {
+    justify-content: center;
+    padding-inline: 8px;
+}
+
+.spaSidebarCollapsed .spaBrand {
+    justify-content: center;
+    padding-bottom: 12px;
+}
+
+.spaSidebarCollapsed .spaCollapseBtn {
+    margin-left: 0;
+}
+
+.spaSidebarCollapsed .spaBrand img {
+    display: none;
+}
+
+/* ---------------- Main column ---------------- */
+
+.spaColumn {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 100vh;
+}
+
+.spaTopbar {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 22px;
+    background: color-mix(in srgb, var(--background) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+}
+
+.spaMenuBtn {
+    display: none;
+    width: 40px;
+    height: 40px;
+    flex: none;
+    place-items: center;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card);
+    color: var(--foreground);
+    cursor: pointer;
+}
+
+.spaMenuBtn svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+}
+
+.spaBreadcrumb {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    min-width: 0;
+    font-size: 13px;
+    color: var(--muted-foreground);
+    white-space: nowrap;
+}
+
+.spaBreadcrumb strong {
+    color: var(--foreground);
+    font-weight: 650;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.spaTopbarSpacer {
+    flex: 1 1 auto;
+    min-width: 8px;
+}
+
+.spaSearch {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.spaSearch input {
+    width: 240px;
+    max-width: 100%;
+    min-height: 38px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+.spaCta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 38px;
+    padding: 8px 14px;
+    border: 1px solid var(--primary);
+    border-radius: 8px;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.spaCta:hover {
+    filter: brightness(1.12);
+}
+
+.spaCta:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+}
+
+.spaAccount {
+    position: relative;
+    flex: none;
+}
+
+.spaAccountBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 38px;
+    padding: 4px 10px 4px 4px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--card);
+    color: var(--foreground);
+    cursor: pointer;
+}
+
+.spaAccountBtn img {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+}
+
+.spaAccountBtn svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: var(--muted-foreground);
+    stroke-width: 1.9;
+    stroke-linecap: round;
+}
+
+.spaAccountMenu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 6px);
+    min-width: 190px;
+    padding: 6px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--card);
+    box-shadow: var(--shadow-panel);
+    z-index: 40;
+}
+
+.spaAccountMenu button {
+    display: block;
+    width: 100%;
+    padding: 9px 10px;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--foreground);
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.spaAccountMenu button:hover {
+    background: var(--secondary);
+}
+
+.spaAccountMenu button:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: -2px;
+}
+
+.spaAccountMenu .spaMenuWho {
+    padding: 6px 10px 8px;
+    border-bottom: 1px solid var(--border-soft);
+    margin-bottom: 4px;
+    font-size: 12px;
+    color: var(--muted-foreground);
+    overflow-wrap: anywhere;
+}
+
+/* ---------------- View area ---------------- */
+
+.spaMain {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 22px;
+}
+
+.spaMain:focus {
+    outline: none;
+}
+
+.spaView {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    min-width: 0;
+}
+
+.spaViewHead {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.spaViewHead h1 {
+    margin: 0;
+    font-size: 24px;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+}
+
+.spaViewHead h1:focus {
+    outline: none;
+}
+
+.spaViewHead p {
+    margin: 5px 0 0;
+    font-size: 13px;
+    color: var(--muted-foreground);
+}
+
+.spaHeadMeta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    color: var(--muted-foreground);
+}
+
+/* ---------------- Shared pieces ---------------- */
+
+.spaPanel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    min-width: 0;
+}
+
+.spaPanelHead {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.spaPanelHead strong {
+    font-size: 13.5px;
+}
+
+.spaPanelBody {
+    padding: 16px;
+    min-width: 0;
+}
+
+.spaChipRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-width: 0;
+}
+
+.spaChip {
+    min-height: 32px;
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--card);
+    color: var(--text-soft);
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.spaChip:hover {
+    background: var(--secondary);
+}
+
+.spaChip[aria-pressed="true"] {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: var(--primary-foreground);
+}
+
+.spaChip:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+}
+
+.spaEmpty,
+.spaLoading,
+.spaError {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 28px 18px;
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+    text-align: center;
+    color: var(--muted-foreground);
+    font-size: 13px;
+}
+
+.spaEmpty strong,
+.spaError strong {
+    color: var(--foreground);
+    font-size: 14px;
+}
+
+.spaError {
+    border-color: var(--destructive);
+    background: var(--destructive-soft);
+    color: var(--destructive);
+}
+
+/* ---------------- Detail rail / sheet ---------------- */
+
+.spaDetailRail {
+    min-width: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+}
+
+/* ---------------- Drawer / backdrop ---------------- */
+
+.spaBackdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: rgba(0, 0, 0, 0.38);
+    border: 0;
+}
+
+.spaDrawerOpen .spaBackdrop {
+    display: block;
+}
+
+.spaDrawerOpen .spaSidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 60;
+    width: min(280px, 84vw);
+    height: 100vh;
+    box-shadow: var(--shadow-panel);
+}
+
+/* ---------------- Responsive ---------------- */
+
+@media (max-width: 1100px) {
+    .spaSidebar {
+        padding-inline: 12px;
+    }
+}
+
+@media (max-width: 879px) {
+    .spaApp,
+    .spaApp.spaSidebarCollapsed {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .spaSidebar {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 60;
+        width: min(280px, 84vw);
+        transform: translateX(-100%);
+        transition: transform 0.2s ease;
+        box-shadow: var(--shadow-panel);
+        display: flex;
+    }
+
+    .spaDrawerOpen .spaSidebar {
+        transform: none;
+        position: fixed;
+    }
+
+    .spaSidebarCollapsed .spaBrandText,
+    .spaSidebarCollapsed .spaGroupHead,
+    .spaSidebarCollapsed .spaNavLabel,
+    .spaSidebarCollapsed .spaUserMeta,
+    .spaSidebarCollapsed .spaBrand img {
+        display: initial;
+    }
+
+    .spaSidebarCollapsed .spaBrandText,
+    .spaSidebarCollapsed .spaUserMeta {
+        display: flex;
+    }
+
+    .spaSidebarCollapsed .spaGroupHead {
+        display: block;
+    }
+
+    .spaSidebarCollapsed .spaNavLink {
+        justify-content: flex-start;
+        padding-inline: 10px;
+    }
+
+    .spaSidebarCollapsed .spaBrand {
+        justify-content: flex-start;
+    }
+
+    .spaSidebarCollapsed .spaCollapseBtn {
+        margin-left: auto;
+        display: none;
+    }
+
+    .spaMenuBtn {
+        display: grid;
+    }
+
+    .spaCollapseBtn {
+        display: none;
+    }
+
+    .spaTopbar {
+        padding: 10px 14px;
+    }
+
+    .spaMain {
+        padding: 16px 14px 28px;
+    }
+
+    .spaSearch input {
+        width: 100%;
+    }
+}
+
+@media (max-width: 719px) {
+    .spaBreadcrumb span {
+        display: none;
+    }
+
+    .spaViewHead h1 {
+        font-size: 21px;
+    }
+
+    .spaSearch {
+        order: 3;
+        flex: 1 1 100%;
+    }
+
+    .spaTopbar {
+        flex-wrap: wrap;
+        row-gap: 8px;
+    }
+
+    .spaCta {
+        min-height: 40px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .spaSidebar {
+        transition: none;
+    }
+
+    .spaCollapseBtn svg {
+        transition: none;
+    }
+}
+
+@media print {
+    .spaSidebar,
+    .spaTopbar,
+    .spaBackdrop {
+        display: none !important;
+    }
+
+    .spaApp {
+        display: block;
+    }
+
+    .spaMain {
+        padding: 0;
+    }
+}
