@@ -65,3 +65,30 @@ export function destroyMap(map) {
     /* map already detached */
   }
 }
+
+const MAPLIBRE_CSS = "https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css";
+const MAPLIBRE_JS = "https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js";
+const PLUGIN_JS = "https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.1.4/leaflet-maplibre-gl.js";
+
+let liveMapPromise = null;
+
+export function loadLiveMapLibs() {
+  if (window.L && window.maplibregl && window.L.maplibreGL) {
+    return Promise.resolve({ L: window.L, maplibregl: window.maplibregl });
+  }
+  if (liveMapPromise) return liveMapPromise;
+
+  injectCss(LEAFLET_CSS, "spaLeafletCss");
+  injectCss(MAPLIBRE_CSS, "spaMaplibreCss");
+
+  liveMapPromise = loadLeaflet()
+    .then(() => injectScript(MAPLIBRE_JS, "spaMaplibreJs"))
+    .then(() => injectScript(PLUGIN_JS, "spaMapLibreLeafletJs"))
+    .then(() => ({ L: window.L, maplibregl: window.maplibregl }))
+    .catch((error) => {
+      liveMapPromise = null;
+      throw error;
+    });
+
+  return liveMapPromise;
+}
