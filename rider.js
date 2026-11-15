@@ -264,7 +264,7 @@ function setupBackButton(canShow) {
     document.body.classList.add("hasBack");
     backBtn.addEventListener("click", () => {
         if (history.length > 1) history.back();
-        else window.location.href = "dashboard.html";
+        else window.location.href = "index.html#/dashboard";
     });
 }
 

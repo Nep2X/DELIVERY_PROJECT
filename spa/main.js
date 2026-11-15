@@ -59,6 +59,15 @@ async function boot() {
   const viewRoot = app.querySelector("#viewRoot");
   const stopModalTrap = initModalTrap();
 
+  // Ang skip link ay hindi route; iwasan ang hashchange papuntang dashboard.
+  const skipLink = document.querySelector(".skipLink");
+  const onSkipClick = (event) => {
+    event.preventDefault();
+    viewRoot.scrollIntoView({ block: "start" });
+    viewRoot.focus({ preventScroll: true });
+  };
+  if (skipLink) skipLink.addEventListener("click", onSkipClick);
+
   let disposeView = () => {};
   let controller = null;
   let runToken = 0;
@@ -223,6 +232,7 @@ async function boot() {
       }
       shell.destroy();
       stopModalTrap();
+      if (skipLink) skipLink.removeEventListener("click", onSkipClick);
     },
     { once: true }
   );
