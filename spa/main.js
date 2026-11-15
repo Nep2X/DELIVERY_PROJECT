@@ -1,6 +1,7 @@
 import { bootAuth, canAccess, install401Handler, logout } from "./auth.js";
 import { buildHash, navigate, startRouter } from "./router.js";
 import { createShell } from "./shell.js";
+import { confirmBox, initModalTrap, toast } from "./ui.js";
 import { esc } from "./util.js";
 
 const VIEWS = {
@@ -56,6 +57,7 @@ async function boot() {
 
   const shell = createShell(app, { user, navigate });
   const viewRoot = app.querySelector("#viewRoot");
+  const stopModalTrap = initModalTrap();
 
   let disposeView = () => {};
   let controller = null;
@@ -119,6 +121,8 @@ async function boot() {
       },
       setSearch: shell.setSearch,
       setCta: shell.setCta,
+      toast,
+      confirm: confirmBox,
       signal: controller.signal,
       onCleanup(fn) {
         if (typeof fn === "function") cleanups.push(fn);
@@ -196,8 +200,8 @@ async function boot() {
     });
   });
 
-  const confirmLogout = () => {
-    if (window.confirm("Log out of Delivery Project?")) logout();
+  const confirmLogout = async () => {
+    if (await confirmBox("Log out of Delivery Project?")) logout();
   };
 
   app.querySelector("#sidebarLogoutButton")?.addEventListener("click", confirmLogout);
@@ -218,6 +222,7 @@ async function boot() {
         /* page is going away */
       }
       shell.destroy();
+      stopModalTrap();
     },
     { once: true }
   );
