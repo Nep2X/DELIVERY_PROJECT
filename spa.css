@@ -1191,6 +1191,244 @@
     }
 }
 
+/* ---------------- Reports ---------------- */
+
+.spaReportControls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.spaReportRange {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.spaReportRange label {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+}
+
+.spaReportRange input {
+    min-height: 34px;
+    padding: 6px 9px;
+    font-size: 12.5px;
+}
+
+.spaReportControls .btnPrimary,
+.spaReportControls .btnOutline {
+    min-height: 34px;
+    padding: 6px 13px;
+    font-size: 12.5px;
+}
+
+.spaReportWorkspace {
+    align-items: start;
+}
+
+.spaReportGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    align-items: start;
+    min-width: 0;
+}
+
+.spaReportWide {
+    grid-column: 1 / -1;
+}
+
+.spaReportCard {
+    min-width: 0;
+}
+
+.spaReportPanelTools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 8px;
+}
+
+.spaReportPanelTools select {
+    min-height: 32px;
+    padding: 5px 9px;
+    font-size: 12.5px;
+}
+
+.spaInlineLabel {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--muted-foreground);
+}
+
+.spaReportRow {
+    cursor: pointer;
+}
+
+.spaReportRow:hover {
+    background: var(--secondary);
+}
+
+.spaReportRow:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: -2px;
+}
+
+.spaReportNotes {
+    max-width: 240px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.spaTableEmpty {
+    padding: 18px 12px !important;
+    text-align: center;
+    color: var(--muted-foreground);
+    font-style: italic;
+}
+
+.spaProofLink {
+    display: block;
+    width: 100%;
+}
+
+.spaProofLink .proofThumb {
+    width: 100%;
+    height: 180px;
+    border-radius: 8px;
+}
+
+.photoViewerMissing {
+    margin: 0;
+    color: #f3f3f3;
+    font-size: 14px;
+}
+
+@media (max-width: 1100px) {
+    .spaReportGrid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .spaReportWide {
+        grid-column: auto;
+    }
+}
+
+@media (max-width: 719px) {
+    .spaReportControls {
+        width: 100%;
+    }
+
+    .spaReportRange {
+        flex: 1 1 100%;
+    }
+
+    .spaReportRange label {
+        flex: 1 1 132px;
+    }
+
+    .spaReportRange input {
+        width: 100%;
+    }
+
+    .spaReportControls .btnPrimary,
+    .spaReportControls .btnOutline {
+        flex: 1 1 auto;
+    }
+
+    .spaReportNotes {
+        max-width: none;
+        white-space: normal;
+    }
+}
+
+@media print {
+    .spaViewHead,
+    .spaReportControls,
+    .spaReportPanelTools,
+    .spaDetailRail,
+    #repMessage {
+        display: none !important;
+    }
+
+    .spaApp,
+    .spaColumn,
+    .spaMain,
+    .spaView {
+        display: block;
+        height: auto;
+        min-height: 0;
+        padding: 0;
+        overflow: visible;
+    }
+
+    .spaReportWorkspace {
+        display: block;
+    }
+
+    .spaWorkspaceMain {
+        gap: 10px;
+    }
+
+    .spaReportGrid {
+        display: block;
+    }
+
+    .spaReportCard {
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        break-inside: auto;
+    }
+
+    .spaReportCard .tableWrapper {
+        overflow: visible !important;
+    }
+
+    .spaReportRow {
+        cursor: default;
+        break-inside: avoid;
+    }
+
+    .spaReportNotes {
+        max-width: none;
+        white-space: normal;
+    }
+
+    .spaReportCard .dataTable {
+        font-size: 10.5px;
+    }
+
+    .spaReportCard .proofThumb {
+        width: 44px;
+        height: 44px;
+    }
+
+    .spaReportGrid .kpiCard,
+    .kpiGrid .kpiCard {
+        box-shadow: none;
+    }
+
+    .kpiGrid {
+        display: grid;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .printInfo {
+        display: block;
+        margin-bottom: 12px;
+    }
+}
+
 /* ---------------- Drawer / backdrop ---------------- */
 
 .spaBackdrop {
