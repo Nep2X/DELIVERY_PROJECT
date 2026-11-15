@@ -57,14 +57,15 @@ async function boot() {
 
   const shell = createShell(app, { user, navigate });
   const viewRoot = app.querySelector("#viewRoot");
+  const mainContent = app.querySelector("#mainContent");
   const stopModalTrap = initModalTrap();
 
   // Ang skip link ay hindi route; iwasan ang hashchange papuntang dashboard.
   const skipLink = document.querySelector(".skipLink");
   const onSkipClick = (event) => {
     event.preventDefault();
-    viewRoot.scrollIntoView({ block: "start" });
-    viewRoot.focus({ preventScroll: true });
+    mainContent.scrollIntoView({ block: "start" });
+    mainContent.focus({ preventScroll: true });
   };
   if (skipLink) skipLink.addEventListener("click", onSkipClick);
 

@@ -208,7 +208,10 @@ export function createShell(root, { user, navigate }) {
   const openDrawer = () => {
     app.classList.add("spaDrawerOpen");
     menuBtn.setAttribute("aria-expanded", "true");
-    sidebar.querySelector("a, button")?.focus();
+    const firstVisible = [...sidebar.querySelectorAll("a, button")].find(
+      (element) => element.getClientRects().length > 0
+    );
+    firstVisible?.focus();
   };
 
   const closeDrawer = (restoreFocus = false) => {
