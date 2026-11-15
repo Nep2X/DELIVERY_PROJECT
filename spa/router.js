@@ -61,7 +61,16 @@ export function startRouter(onRoute) {
     const { path, params } = parseHash(window.location.hash);
     onRoute(routeFor(path), params, path);
   };
+  // Kapag binalik ng browser ang page mula sa bfcache (hal. Back galing rider.html),
+  // i-render ulit ang kasalukuyang route para fresh ang data at buhay ang view.
+  const onPageShow = (event) => {
+    if (event.persisted) emit();
+  };
   window.addEventListener("hashchange", emit);
+  window.addEventListener("pageshow", onPageShow);
   emit();
-  return () => window.removeEventListener("hashchange", emit);
+  return () => {
+    window.removeEventListener("hashchange", emit);
+    window.removeEventListener("pageshow", onPageShow);
+  };
 }

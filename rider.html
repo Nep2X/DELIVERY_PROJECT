@@ -13,9 +13,15 @@
 
     <a class="skipLink" href="#pageContent">Skip to content</a>
 
-    <header class="headerSec">
-        <h2 aria-hidden="true">DELIVERY PROJECT</h2>
-        <div class="headerActions">
+    <header class="riderTopbar">
+        <div class="riderBrand">
+            <img src="assets/company-logo.svg" alt="">
+            <div class="riderBrandText">
+                <strong>Delivery Project</strong>
+                <span>Rider report</span>
+            </div>
+        </div>
+        <div class="riderTopActions">
             <button type="button" id="backBtn" style="display:none;" aria-label="Go back" title="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></button>
             <span id="whoami">Rider Report</span>
             <button type="button" id="logoutBtn">Logout</button>
@@ -24,10 +30,12 @@
 
     <main class="riderWrap" id="pageContent" tabindex="-1">
 
-        <div class="panel">
-            <h1>Report a Delivery</h1>
+        <div class="riderHead">
+            <h1 tabindex="-1">Report a Delivery</h1>
             <p>Select your name and the delivery you completed, then upload the proof of delivery photo.</p>
+        </div>
 
+        <div class="panel">
             <label for="riderSelect">Your Name</label>
             <select id="riderSelect"><option value="">Loading...</option></select>
 

@@ -135,7 +135,7 @@ export default {
   async mount(root, ctx) {
     root.innerHTML = template();
 
-    const $ = (id) => root.querySelector(`#${id}`);
+    const $ = (id) => root.querySelector(`#${id}`) || document.getElementById(id);
     const rowsEl = $("lmRows");
     const chipsEl = $("lmChips");
     const countEl = $("lmCount");

@@ -197,7 +197,7 @@ export default {
   async mount(root, ctx) {
     root.innerHTML = template(ctx);
 
-    const $ = (id) => root.querySelector(`#${id}`);
+    const $ = (id) => root.querySelector(`#${id}`) || document.getElementById(id);
     let hasRendered = false;
     let stopCountUp = null;
     let timer = null;

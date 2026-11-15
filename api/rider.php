@@ -216,5 +216,7 @@ try {
 
     fail(400, 'Invalid request.');
 } catch (PDOException $e) {
+    if ($pdo->inTransaction()) $pdo->rollBack();
+    if (!empty($dir) && !empty($filename)) @unlink($dir . '/' . $filename);
     fail(500, safe_error($e));
 }

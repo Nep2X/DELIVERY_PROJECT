@@ -209,7 +209,7 @@ export default {
     const isAdmin = ctx.user?.role === "Admin";
     root.innerHTML = template(isAdmin);
 
-    const $ = (id) => root.querySelector(`#${id}`);
+    const $ = (id) => root.querySelector(`#${id}`) || document.getElementById(id);
     const modals = ["profileModal", "passwordModal", "userModal", "resetModal"]
       .map((id) => $(id))
       .filter(Boolean);

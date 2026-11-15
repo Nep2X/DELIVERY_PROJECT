@@ -116,7 +116,7 @@ export default {
   async mount(root, ctx) {
     root.innerHTML = template();
 
-    const $ = (id) => root.querySelector(`#${id}`);
+    const $ = (id) => root.querySelector(`#${id}`) || document.getElementById(id);
     const rows = $("driverRows");
     const rail = $("driverRail");
     const railBody = $("driverRailBody");

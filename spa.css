@@ -1584,3 +1584,9 @@
         padding: 0;
     }
 }
+/* Ang hidden attribute ay dapat laging gumana (hindi ma-override ng display sa class) */
+.spaCta[hidden],
+.spaSearch[hidden],
+.spaAccountMenu[hidden] {
+    display: none !important;
+}

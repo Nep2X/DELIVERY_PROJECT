@@ -84,7 +84,7 @@ export default {
   async mount(root, ctx) {
     root.innerHTML = template();
 
-    const $ = (id) => root.querySelector(`#${id}`);
+    const $ = (id) => root.querySelector(`#${id}`) || document.getElementById(id);
     const rows = $("employeeRows");
     const rail = $("employeeRail");
     const railBody = $("employeeRailBody");

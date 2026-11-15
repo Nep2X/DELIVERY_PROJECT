@@ -250,7 +250,7 @@ export default {
   async mount(root, ctx) {
     root.innerHTML = template();
 
-    const $ = (id) => root.querySelector(`#${id}`);
+    const $ = (id) => root.querySelector(`#${id}`) || document.getElementById(id);
     const fromDate = $("repFrom");
     const toDate = $("repTo");
     const riderFilter = $("riderFilter");

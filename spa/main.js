@@ -58,7 +58,7 @@ async function boot() {
   const shell = createShell(app, { user, navigate });
   const viewRoot = app.querySelector("#viewRoot");
   const mainContent = app.querySelector("#mainContent");
-  const stopModalTrap = initModalTrap();
+  initModalTrap();
 
   // Ang skip link ay hindi route; iwasan ang hashchange papuntang dashboard.
   const skipLink = document.querySelector(".skipLink");
@@ -203,7 +203,7 @@ async function boot() {
     }
   };
 
-  const stopRouter = startRouter((route, params, rawPath) => {
+  startRouter((route, params, rawPath) => {
     showRoute(route, params, rawPath).catch((error) => {
       console.error("[spa] routing failed", error);
       renderFailure(error?.message || "Unknown error");
@@ -221,22 +221,8 @@ async function boot() {
     navigate("settings");
   });
 
-  window.addEventListener(
-    "pagehide",
-    () => {
-      stopRouter();
-      if (controller) controller.abort();
-      try {
-        disposeView();
-      } catch {
-        /* page is going away */
-      }
-      shell.destroy();
-      stopModalTrap();
-      if (skipLink) skipLink.removeEventListener("click", onSkipClick);
-    },
-    { once: true }
-  );
+  // Huwag i-teardown sa pagehide: kapag binalik ng bfcache ang page (hal. galing
+  // rider.html), dapat buhay pa rin ang router at shell listeners.
 }
 
 boot().catch((error) => {

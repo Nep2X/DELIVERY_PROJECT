@@ -3545,4 +3545,103 @@ flex-direction: column;
     overflow-wrap: anywhere;
     font-variant-numeric: tabular-nums;
 }
-    
+/* =====================================================
+   RIDER REPORT PAGE - parehong itsura ng admin SPA
+===================================================== */
+.riderPage .riderTopbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 22px;
+    background: color-mix(in srgb, var(--background) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+}
+.riderPage .riderBrand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.riderPage .riderBrand img { width: 32px; height: 32px; flex: none; border-radius: 8px; }
+.riderPage .riderBrandText { display: flex; flex-direction: column; min-width: 0; }
+.riderPage .riderBrandText strong { font-size: 14px; line-height: 1.2; letter-spacing: -0.01em; }
+.riderPage .riderBrandText span { font-size: 11px; line-height: 1.3; color: var(--muted-foreground); }
+.riderPage .riderTopActions { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.riderPage #whoami {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--foreground);
+}
+.riderPage #logoutBtn,
+.riderPage #backBtn {
+    min-height: 38px;
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--card);
+    color: var(--text-soft);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.riderPage #backBtn {
+    position: static;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    display: inline-grid;
+    place-items: center;
+    line-height: 0;
+}
+.riderPage #backBtn svg { width: 18px; height: 18px; }
+.riderPage #logoutBtn:hover,
+.riderPage #backBtn:hover { background: var(--secondary); color: var(--foreground); }
+.riderPage #logoutBtn:focus-visible,
+.riderPage #backBtn:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+body.riderPage.hasBack .riderWrap { padding-top: 22px; }
+.riderPage .riderWrap { max-width: 760px; padding: 22px 22px 48px; }
+
+.riderPage .riderHead { margin: 0 0 16px; }
+.riderPage .riderHead h1 { margin: 0; font-size: 24px; line-height: 1.15; font-weight: 700; letter-spacing: -0.02em; }
+.riderPage .riderHead h1:focus { outline: none; }
+.riderPage .riderHead p { margin: 5px 0 0; font-size: 13px; color: var(--muted-foreground); }
+
+.riderPage .riderWrap .panel {
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--card);
+    box-shadow: none;
+}
+.riderPage .riderWrap .panel h2 { margin: 0 0 4px; font-size: 15px; font-weight: 650; letter-spacing: -0.01em; }
+.riderPage .riderWrap .panel > label:first-child { margin-top: 0; }
+.riderPage .riderWrap label { font-size: 13px; font-weight: 600; color: var(--text-soft); }
+.riderPage .riderWrap .hint { font-size: 12.5px; color: var(--muted-foreground); }
+
+.riderPage .riderWrap select,
+.riderPage .riderWrap textarea,
+.riderPage .riderWrap input[type="text"],
+.riderPage .riderWrap input[type="number"] {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card);
+    color: var(--foreground);
+    font-size: 14px;
+}
+.riderPage .riderWrap select:focus-visible,
+.riderPage .riderWrap textarea:focus-visible,
+.riderPage .riderWrap input:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+
+.riderPage .riderWrap .profileRow span { font-size: 13px; }
+.riderPage .riderWrap .profileRow strong { font-size: 13px; font-weight: 650; }
+
+@media (max-width: 650px) {
+    .riderPage .riderTopbar { padding: 10px 14px; }
+    .riderPage .riderWrap { padding: 16px 12px 36px; }
+    .riderPage #whoami { display: none; }
+}

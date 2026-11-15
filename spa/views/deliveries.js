@@ -55,7 +55,7 @@ const template = () => `
   <div class="spaDeliveries">
     <section class="spaPanel spaDelList" aria-label="Delivery list">
       <div class="spaDelFilters">
-        <div class="spaChipRow" id="delChips" role="group" aria-label="Filter by status"></div>
+        <div class="spaChipRow" id="delChips" role="group" aria-label="Filter by status"><button type="button" class="spaCta" id="delNewBtn" style="min-height:32px;padding:4px 14px;">+ New Delivery</button></div>
         <div class="spaDelFilterRow">
           <select id="delDriverFilter" aria-label="Filter by driver"></select>
           <input type="date" id="delDateFilter" aria-label="Filter by date">
@@ -201,7 +201,7 @@ export default {
   async mount(root, ctx) {
     root.innerHTML = template();
 
-    const $ = (id) => root.querySelector(`#${id}`);
+    const $ = (id) => root.querySelector(`#${id}`) || document.getElementById(id);
     const rowsEl = $("delRows");
     const chipsEl = $("delChips");
     const driverFilter = $("delDriverFilter");
@@ -276,18 +276,22 @@ export default {
 
     /* ---------- chips + filters ---------- */
 
-    const renderChips = () => {
+        const renderChips = () => {
       const chips = [{ value: "", label: "All" }].concat(
         STATUS_LIST.map((status) => ({ value: status, label: status }))
       );
-      chipsEl.innerHTML = chips
-        .map(
-          (chip) =>
-            `<button type="button" class="spaChip" data-status="${esc(chip.value)}" aria-pressed="${
-              statusFilter === chip.value ? "true" : "false"
-            }">${esc(chip.label)}</button>`
-        )
-        .join("");
+      chipsEl.querySelectorAll(".spaChip").forEach((node) => node.remove());
+      chipsEl.insertAdjacentHTML(
+        "afterbegin",
+        chips
+          .map(
+            (chip) =>
+              `<button type="button" class="spaChip" data-status="${esc(chip.value)}" aria-pressed="${
+                statusFilter === chip.value ? "true" : "false"
+              }">${esc(chip.label)}</button>`
+          )
+          .join("")
+      );
     };
 
     const renderDriverFilter = () => {
@@ -1040,7 +1044,7 @@ export default {
       }, 120),
     });
 
-    ctx.setCta({ label: "+ New Delivery", onClick: () => openAdd() });
+    $("delNewBtn").addEventListener("click", () => openAdd().catch((error) => console.error(error)));
 
     /* ---------- boot ---------- */
 

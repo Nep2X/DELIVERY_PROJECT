@@ -281,7 +281,7 @@ try {
                     )->execute([$status, date('Y-m-d H:i:s'), $id]);
 
                     // Binuksan ulit ang batch: gawing Pending muli ang mga stop
-                    if ($status !== 'Delivered') {
+                    if ($old['status'] === 'Delivered' && $status !== 'Delivered') {
                         $pdo->prepare(
                             "UPDATE delivery_stops SET status = 'Pending', delivered_at = NULL, proof_image = NULL, rider_notes = NULL
                              WHERE delivery_id = ? AND status = 'Delivered'"
