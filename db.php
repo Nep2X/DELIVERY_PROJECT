@@ -40,7 +40,7 @@ try {
 // =====================================================
 const ACTIVE_DELIVERY_STATUSES = ['Pending', 'Processing', 'Out for Delivery'];
 
-const COMPANY_LAT = 14.624556610241402;   // dapat kapareho ng COMPANY.lat sa live-map.js
+const COMPANY_LAT = 14.624556610241402;   // dapat kapareho ng COMPANY.lat sa spa/views/live-map.js
 const MAX_BATCH_STOPS = 5;                // pinakamaraming customer sa isang delivery
 
 function customer_zone($lat): ?string {
