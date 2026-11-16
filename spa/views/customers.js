@@ -39,7 +39,7 @@ const template = () => `
     <div class="spaWorkspaceMain">
       <div class="panel tablePanel">
         <div class="spaPanelHead">
-          <strong>Customer list</strong>
+          <button type="button" class="spaCta" id="cusAddBtn">+ Add Customer</button>
           <span class="mutedText" id="customerCount">—</span>
         </div>
         <div class="tableWrapper">
@@ -600,6 +600,10 @@ export default {
       }
     };
 
+    $("cusAddBtn").addEventListener("click", () => {
+      openEditor(null).catch((error) => console.error(error));
+    });
+
     rows.addEventListener("click", (event) => {
       const button = event.target.closest(".iconBtn");
       const row = event.target.closest("tr[data-id]");
@@ -642,8 +646,6 @@ export default {
         render();
       }, 120),
     });
-
-    ctx.setCta({ label: "+ Add Customer", onClick: () => openEditor(null) });
 
     await load({ keepSelection: false });
 
