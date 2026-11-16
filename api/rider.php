@@ -189,6 +189,8 @@ try {
             echo json_encode(['ok' => true, 'proof' => $path, 'remaining' => $remaining, 'customer' => $custName]);
             exit;
         }
+        $pdo->beginTransaction();
+
         $stmt = $pdo->prepare(
             "UPDATE deliveries
              SET status = 'Delivered', proof_image = ?, delivered_at = ?, rider_notes = ?
@@ -197,6 +199,7 @@ try {
         $stmt->execute([$path, date('Y-m-d H:i:s'), $notes ?: null, $id]);
 
         if ($stmt->rowCount() === 0) {
+            $pdo->rollBack();
             @unlink($dir . '/' . $filename);
             fail(409, 'This delivery was already updated.');
         }
@@ -209,6 +212,8 @@ try {
         );
 
         sync_driver_status($pdo, $driver);   // wala nang active delivery = Available na ulit
+
+        $pdo->commit();
 
         echo json_encode(['ok' => true, 'proof' => $path]);
         exit;
