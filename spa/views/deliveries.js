@@ -1,5 +1,6 @@
 import { apiJson } from "../api.js";
-import { destroyMap, loadLeaflet } from "../map-loader.js";
+import { destroyMap, loadLeaflet, loadLiveMapLibs } from "../map-loader.js";
+import { setupMapChrome } from "../map-style.js";
 import { buildHash } from "../router.js";
 import { closeModal, emptyState, errorState, loadingState, openModal, statusBadge } from "../ui.js";
 import { debounce, esc, fmtDate, fmtDateTime, isOverdue } from "../util.js";
@@ -229,6 +230,7 @@ export default {
     let customers = [];
     let drivers = [];
     let query = "";
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let statusFilter = "";
     let selectedId = null;
     let editingId = null;
@@ -384,15 +386,6 @@ export default {
     let markerLayer = null;
     let mapToken = 0;
 
-    const tileUrl = () =>
-      typeof window.mapTileUrl === "function"
-        ? window.mapTileUrl()
-        : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
-    const tileAttribution = () =>
-      typeof window.mapAttribution === "function" ? window.mapAttribution() : "&copy; OpenStreetMap";
-    const tileMaxNativeZoom = () =>
-      typeof window.mapMaxNativeZoom === "function" ? window.mapMaxNativeZoom() : 19;
-
     const pinIcon = (L) =>
       L.divIcon({
         className: "",
@@ -412,16 +405,32 @@ export default {
     };
 
     const ensureMap = async () => {
-      const L = await loadLeaflet();
+      let L = null;
+      try {
+        const libs = await loadLiveMapLibs();
+        L = libs.L;
+      } catch (error) {
+        console.error(error);
+        try {
+          L = await loadLeaflet();
+        } catch {
+          L = null;
+        }
+      }
       if (!alive) return null;
+      if (!L) {
+        showNotice("Map unavailable", "The map library could not load. Delivery details still work.");
+        return null;
+      }
       if (!map) {
-        map = L.map(mapEl, { scrollWheelZoom: false }).setView(MAP_CENTER, 6);
-        L.tileLayer(tileUrl(), {
-          maxZoom: 19,
-          maxNativeZoom: tileMaxNativeZoom(),
-          attribution: tileAttribution(),
-          subdomains: "abcd",
-        }).addTo(map);
+        map = L.map(mapEl, {
+          zoomControl: false,
+          zoomAnimation: !reduceMotion,
+          zoomAnimationThreshold: 4,
+          fadeAnimation: !reduceMotion,
+          markerZoomAnimation: !reduceMotion,
+        }).setView(MAP_CENTER, 6);
+        setupMapChrome(L, map, root, { isAlive: () => alive });
         markerLayer = L.layerGroup().addTo(map);
       }
       requestAnimationFrame(() => {
