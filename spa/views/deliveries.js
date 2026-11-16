@@ -55,7 +55,7 @@ const template = () => `
   <div class="spaDeliveries">
     <section class="spaPanel spaDelList" aria-label="Delivery list">
       <div class="spaDelFilters">
-        <div class="spaChipRow" id="delChips" role="group" aria-label="Filter by status"><button type="button" class="spaCta" id="delNewBtn" style="min-height:32px;padding:4px 14px;">+ New Delivery</button></div>
+        <div class="spaChipRow" id="delChips" role="group" aria-label="Delivery status filters and actions"><button type="button" class="spaCta" id="delNewBtn" style="min-height:32px;padding:4px 14px;">+ New Delivery</button></div>
         <div class="spaDelFilterRow">
           <select id="delDriverFilter" aria-label="Filter by driver"></select>
           <input type="date" id="delDateFilter" aria-label="Filter by date">
