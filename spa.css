@@ -604,6 +604,14 @@
     outline-offset: 2px;
 }
 
+/* Ang + New Delivery ay nasa chip row pa rin pero nakasagad sa kanan,
+   para may pagitan ito sa grupo ng mga filter. */
+.spaChipRow .spaChipAction {
+    margin-left: auto;
+    min-height: 32px;
+    padding: 4px 14px;
+}
+
 .spaEmpty,
 .spaLoading,
 .spaError {
