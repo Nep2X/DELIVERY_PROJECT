@@ -19,3 +19,5 @@ config - Copy.php
 *.bak
 
 chat_*.md
+# Throwaway local test harness files
+tmp-*

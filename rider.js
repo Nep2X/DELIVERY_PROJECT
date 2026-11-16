@@ -260,7 +260,7 @@ function setupBackButton(canShow) {
     } catch (_) {
         return;
     }
-    backBtn.style.display = "inline-block";
+    backBtn.style.display = "inline-grid";
     document.body.classList.add("hasBack");
     backBtn.addEventListener("click", () => {
         if (history.length > 1) history.back();
