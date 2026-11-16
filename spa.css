@@ -564,6 +564,11 @@
     font-size: 13.5px;
 }
 
+/* Para pantay ang button sa kaliwang gilid ng table sa ilalim niya */
+.spaPanelHeadFlush {
+    padding-left: 0;
+}
+
 .spaPanelBody {
     padding: 16px;
     min-width: 0;

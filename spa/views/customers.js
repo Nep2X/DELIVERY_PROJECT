@@ -38,7 +38,7 @@ const template = () => `
   <div class="spaWorkspace">
     <div class="spaWorkspaceMain">
       <div class="panel tablePanel">
-        <div class="spaPanelHead">
+        <div class="spaPanelHead spaPanelHeadFlush">
           <button type="button" class="spaCta" id="cusAddBtn">+ Add Customer</button>
           <span class="mutedText" id="customerCount">—</span>
         </div>
