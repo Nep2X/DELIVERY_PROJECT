@@ -246,6 +246,8 @@ export function createMapStyleController(L, map, root, { isAlive = () => true } 
 /* ---------- controls ---------- */
 
 export function setupMapChrome(L, map, root, options = {}) {
+  if (map.attributionControl) map.attributionControl.remove();
+
   const controller = createMapStyleController(L, map, root, options);
 
   const StyleControl = L.Control.extend({
@@ -276,9 +278,8 @@ export function setupMapChrome(L, map, root, options = {}) {
     },
   });
 
-  L.control.zoom({ position: "bottomright" }).addTo(map);
   new StyleControl().addTo(map);
-  L.control.scale({ position: "bottomright", imperial: false, maxWidth: 120 }).addTo(map);
+  L.control.zoom({ position: "bottomright" }).addTo(map);
 
   controller.apply(currentMapStyle());
   return controller;

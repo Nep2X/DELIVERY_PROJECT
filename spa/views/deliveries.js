@@ -553,17 +553,19 @@ export default {
           }
         </dl>
 
-        <h3 class="viewSection">${names.length > 1 ? `Customers (${names.length})` : "Customer"}</h3>
-        <div class="viewStop">
-          <div class="viewStopHead"><b>${esc(names[0] || delivery.customer_name || "-")}</b></div>
-          <dl class="viewList">
-            ${viewRow("Address", esc(delivery.address || "-"))}
-            ${viewRow("Contact", esc(delivery.contact || "-"))}
-            ${viewRow(
-              "Item",
-              esc(delivery.item_desc || "-") + " (Qty: " + esc(delivery.quantity ?? 1) + ")"
-            )}
-          </dl>
+        <div id="delStopList">
+          <h3 class="viewSection">${names.length > 1 ? `Customers (${names.length})` : "Customer"}</h3>
+          <div class="viewStop">
+            <div class="viewStopHead"><b>${esc(names[0] || delivery.customer_name || "-")}</b>${statusBadge(delivery.status)}</div>
+            <dl class="viewList">
+              ${viewRow("Address", esc(delivery.address || "-"))}
+              ${viewRow("Contact", esc(delivery.contact || "-"))}
+              ${viewRow(
+                "Item",
+                esc(delivery.item_desc || "-") + " (Qty: " + esc(delivery.quantity ?? 1) + ")"
+              )}
+            </dl>
+          </div>
         </div>
 
         <div class="spaRailActions">
@@ -573,6 +575,19 @@ export default {
           <button type="button" class="btnOutline" data-del-action="history">History</button>
           <button type="button" class="btnOutline" data-del-action="delete">Delete</button>
         </div>`;
+
+      if (names.length > 1) {
+        apiJson(`${DEL_API}?action=stops&id=${delivery.id}`, { signal: ctx.signal })
+          .then((data) => {
+            if (!alive || selectedId !== delivery.id) return;
+            if (!Array.isArray(data.stops) || !data.stops.length) return;
+            const box = detailsBody.querySelector("#delStopList");
+            if (box) box.innerHTML = viewStopsHtml(data.stops, delivery.status);
+          })
+          .catch(() => {
+            /* keep the summary card */
+          });
+      }
     };
 
     const select = (id) => {
@@ -884,13 +899,15 @@ export default {
 
     /* ---------- view ---------- */
 
-    const viewStopsHtml = (stops) =>
+    const viewStopsHtml = (stops, deliveryStatus = "") =>
       `<h3 class="viewSection">${stops.length > 1 ? `Customers (${stops.length})` : "Customer"}</h3>` +
       stops
-        .map(
-          (stop) => `
+        .map((stop) => {
+          const shownStatus =
+            stop.status === "Delivered" || !deliveryStatus ? stop.status : deliveryStatus;
+          return `
           <div class="viewStop">
-            <div class="viewStopHead"><b>${esc(stop.customer_name)}</b>${statusBadge(stop.status)}</div>
+            <div class="viewStopHead"><b>${esc(stop.customer_name)}</b>${statusBadge(shownStatus)}</div>
             <dl class="viewList">
               ${viewRow("Address", esc(stop.address || "-"))}
               ${viewRow("Contact", esc(stop.contact || "-"))}
@@ -898,8 +915,8 @@ export default {
               ${stop.delivered_at ? viewRow("Delivered at", esc(fmtDateTime(stop.delivered_at))) : ""}
               ${stop.rider_notes ? viewRow("Rider notes", esc(stop.rider_notes)) : ""}
             </dl>
-          </div>`
-        )
+          </div>`;
+        })
         .join("");
 
     const renderView = (delivery, stops) => {
@@ -917,7 +934,7 @@ export default {
           ${viewRow("Remarks", esc(delivery.remarks || "-"))}
           ${delivery.delivered_at ? viewRow("Delivered at", esc(fmtDateTime(delivery.delivered_at))) : ""}
         </dl>
-        ${viewStopsHtml(stops)}`;
+        ${viewStopsHtml(stops, delivery.status)}`;
     };
 
     const openView = async (delivery) => {

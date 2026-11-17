@@ -942,25 +942,22 @@
         flex: 1 1 100%;
     }
 
+    .spaDelRows {
+        max-height: none;
+        overflow: visible;
+    }
+
     .spaDelDetails {
         display: none;
     }
 
     .spaDelDetails.is-open {
         display: block;
-        position: fixed;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 45;
-        max-height: 74vh;
-        overflow-y: auto;
-        border-radius: 14px 14px 0 0;
-        box-shadow: var(--shadow-panel);
     }
 
     .spaDelDetails .spaPanelBody {
         max-height: none;
+        overflow: visible;
     }
 }
 
@@ -1602,4 +1599,20 @@
 .spaSearch[hidden],
 .spaAccountMenu[hidden] {
     display: none !important;
+}
+/* Delivery details: status + Overdue side by side, not stacked */
+.spaRailHead span:has(> .statusBadge) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+.spaRailHead .statusBadge {
+    display: inline-flex;
+    margin-top: 0;
+}
+
+.spaRailHead .lateBadge {
+    margin-left: 0;
 }
